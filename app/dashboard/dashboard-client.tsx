@@ -13,13 +13,17 @@ interface Props {
     user: User
     profile: Profile | null
     todayDate: string
+    tomorrowDate: string
     todayDay: Day | null
+    tomorrowDay: Day | null
     todayBooking: Booking | null
-    capacityStats: {
+    tomorrowBooking: Booking | null
+    tomorrowStats: {
         confirmed: number
         waitlist: number
         capacity_limit: number
     }
+    isRegistrationOpen: boolean
     upcomingBookings: any[]
 }
 
@@ -27,23 +31,37 @@ export default function DashboardClient({
     user,
     profile,
     todayDate,
+    tomorrowDate,
     todayDay,
-    todayBooking: initialBooking,
-    capacityStats: initialStats,
+    tomorrowDay,
+    todayBooking: initialTodayBooking,
+    tomorrowBooking: initialTomorrowBooking,
+    tomorrowStats: initialStats,
+    isRegistrationOpen,
     upcomingBookings,
 }: Props) {
     const router = useRouter()
-    const [booking, setBooking] = useState(initialBooking)
+
+    const [tomorrowBooking, setTomorrowBooking] = useState(initialTomorrowBooking)
+    const [todayBooking, setTodayBooking] = useState(initialTodayBooking)
+
     const [capacityStats, setCapacityStats] = useState(initialStats)
     const [loading, setLoading] = useState(false)
     const [message, setMessage] = useState('')
     const [confirmedMuslim, setConfirmedMuslim] = useState(false)
-    const [showCancelDialog, setShowCancelDialog] = useState(false)
 
-    // Real-time subscription for capacity updates
+    const [cancelDialog, setCancelDialog] = useState<{ isOpen: boolean; bookingId: string; date: string } | null>(null)
+
+    // Sync state with props
+    useEffect(() => {
+        setTomorrowBooking(initialTomorrowBooking)
+        setTodayBooking(initialTodayBooking)
+        setCapacityStats(initialStats)
+    }, [initialTomorrowBooking, initialTodayBooking, initialStats])
+
+    // Real-time subscription for Tomorrow's capacity (Main Focus)
     useEffect(() => {
         const supabase = createClient()
-
         const channel = supabase
             .channel('bookings-changes')
             .on(
@@ -52,23 +70,34 @@ export default function DashboardClient({
                     event: '*',
                     schema: 'public',
                     table: 'bookings',
-                    filter: `day_id=eq.${todayDate}`,
+                    filter: `day_id=eq.${tomorrowDate}`,
                 },
                 async () => {
-                    // Refetch capacity stats
+                    // Refetch Tomorrow's capacity stats
                     const { data: bookings } = await supabase
                         .from('bookings')
                         .select('status')
-                        .eq('day_id', todayDate)
+                        .eq('day_id', tomorrowDate)
 
                     if (bookings) {
                         const confirmed = bookings.filter(b => b.status === 'confirmed').length
                         const waitlist = bookings.filter(b => b.status === 'waitlist').length
-                        setCapacityStats({ ...capacityStats, confirmed, waitlist })
+                        setCapacityStats(prev => ({ ...prev, confirmed, waitlist }))
                     }
 
-                    // Refetch user's booking
+                    // Refetch User's Tomorrow Booking
                     const { data: userBooking } = await supabase
+                        .from('bookings')
+                        .select('*')
+                        .eq('user_id', user.id)
+                        .eq('day_id', tomorrowDate)
+                        .in('status', ['confirmed', 'waitlist'])
+                        .maybeSingle()
+
+                    setTomorrowBooking(userBooking as Booking | null)
+
+                    // Also refetch Today's booking just in case
+                    const { data: userTodayBooking } = await supabase
                         .from('bookings')
                         .select('*')
                         .eq('user_id', user.id)
@@ -76,9 +105,8 @@ export default function DashboardClient({
                         .in('status', ['confirmed', 'waitlist'])
                         .maybeSingle()
 
-                    setBooking(userBooking as Booking | null)
+                    setTodayBooking(userTodayBooking as Booking | null)
 
-                    // Refresh the router to update any server-side data
                     router.refresh()
                 }
             )
@@ -87,9 +115,11 @@ export default function DashboardClient({
         return () => {
             supabase.removeChannel(channel)
         }
-    }, [todayDate, user.id, router])
+    }, [tomorrowDate, todayDate, user.id, router])
 
     const handleReserve = async () => {
+        if (!tomorrowDay) return
+
         if (!confirmedMuslim) {
             setMessage('⚠️ Please confirm that you are Muslim to reserve a spot.')
             return
@@ -97,33 +127,33 @@ export default function DashboardClient({
 
         setLoading(true)
         setMessage('')
-        const result = await reserveSpot(todayDate, confirmedMuslim)
+        // Reserve for TOMORROW
+        const result = await reserveSpot(tomorrowDate, confirmedMuslim)
         setMessage(result.message)
         setLoading(false)
 
-        // Reset checkbox and refresh UI after successful reservation
         if (result.success) {
             setConfirmedMuslim(false)
             router.refresh()
         }
     }
 
-    const handleCancelClick = () => {
-        if (!booking) return
-        setShowCancelDialog(true)
+    const handleCancelClick = (bookingId: string, date: string) => {
+        setCancelDialog({ isOpen: true, bookingId, date })
     }
 
     const handleCancelConfirm = async () => {
-        if (!booking) return
-        setShowCancelDialog(false)
+        if (!cancelDialog) return
 
+        const { bookingId } = cancelDialog
+        setCancelDialog(null)
         setLoading(true)
         setMessage('')
-        const result = await cancelBooking(booking.id)
+
+        const result = await cancelBooking(bookingId)
         setMessage(result.message)
         setLoading(false)
 
-        // Refresh UI after successful cancellation
         if (result.success) {
             router.refresh()
         }
@@ -165,9 +195,7 @@ export default function DashboardClient({
                                 className="h-10 w-auto"
                             />
                             <div>
-                                <h1 className="text-lg font-bold text-white">
-                                    UAlberta MSA
-                                </h1>
+                                <h1 className="text-lg font-bold text-white">UAlberta MSA</h1>
                                 <p className="text-xs text-purple-300">Iftar Portal</p>
                             </div>
                         </div>
@@ -180,108 +208,172 @@ export default function DashboardClient({
                     </div>
                 </header>
 
-                {/* Main Content */}
                 <main className="container mx-auto px-4 py-8 max-w-4xl">
-                    {/* Welcome Section */}
                     <div className="mb-8">
                         <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
-                            As-salamu alaykum, {profile?.full_name || 'Student'}! 👋
+                            As-salamu alaykum, {profile?.full_name || 'Student'}!
                         </h2>
                         <p className="text-purple-300">{user.email}</p>
                     </div>
 
-                    {/* Today's Reservation Card */}
-                    <div className="bg-slate-800/50 border border-purple-500/20 rounded-3xl p-8 backdrop-blur-xl shadow-2xl mb-8">
-                        <div className="flex items-center justify-between mb-6">
-                            <div>
-                                <h3 className="text-2xl font-bold text-white flex items-center gap-2">
-                                    <span>Today's Iftar</span>
-                                    <span className="text-2xl">🍽️</span>
-                                </h3>
-                                <p className="text-gray-300">{formatDate(todayDate)}</p>
-                            </div>
+                    {/* MAIN CARD: TOMORROW'S IFTAR */}
+                    <div className="bg-slate-800/50 border border-purple-500/20 rounded-3xl p-8 backdrop-blur-xl shadow-2xl mb-8 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 p-4 opacity-10">
+                            <svg className="w-32 h-32 text-purple-400" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                            </svg>
                         </div>
 
-                        {/* Status Badge */}
-                        {booking && (
-                            <div className="mb-6">
-                                {booking.status === 'confirmed' && (
-                                    <div className="inline-flex items-center gap-2 bg-purple-500/10 border border-purple-500/30 text-purple-300 px-5 py-3 rounded-xl font-semibold">
-                                        <span className="text-xl">✅</span>
-                                        <span>Confirmed</span>
-                                    </div>
-                                )}
-                                {booking.status === 'waitlist' && (
-                                    <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 text-amber-300 px-5 py-3 rounded-xl font-semibold">
-                                        <span className="text-xl">⏳</span>
-                                        <span>Waitlisted</span>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-
-                        {/* Message Display */}
-                        {message && (
-                            <div className={`mb-6 p-4 rounded-xl border ${message.includes('✅')
-                                ? 'bg-purple-500/10 text-purple-300 border-purple-500/30'
-                                : message.includes('⏳')
-                                    ? 'bg-amber-500/10 text-amber-300 border-amber-500/30'
-                                    : 'bg-red-500/10 text-red-300 border-red-500/30'
-                                }`}>
-                                {message}
-                            </div>
-                        )}
-
-                        {/* Action Buttons */}
-                        {!todayDay ? (
-                            <div className="text-center py-8 text-gray-400">
-                                <p>No Iftar scheduled for today</p>
-                            </div>
-                        ) : !todayDay.is_open ? (
-                            <div className="text-center py-8 text-gray-400">
-                                <p>Reservations are closed for today</p>
-                            </div>
-                        ) : booking ? (
-                            <button
-                                onClick={handleCancelClick}
-                                disabled={loading}
-                                className="w-full bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 disabled:from-gray-600 disabled:to-gray-600 text-white font-semibold py-4 px-8 rounded-xl transition-all shadow-lg hover:shadow-red-500/25 hover:scale-[1.02] active:scale-[0.98]"
-                            >
-                                {loading ? 'Processing...' : 'Cancel Reservation'}
-                            </button>
-                        ) : (
-                            <>
-                                {/* Muslim Confirmation Checkbox */}
-                                <div className="mb-6 bg-slate-700/30 border border-purple-500/20 rounded-xl p-5">
-                                    <label className="flex items-start gap-3 cursor-pointer group">
-                                        <input
-                                            type="checkbox"
-                                            checked={confirmedMuslim}
-                                            onChange={(e) => setConfirmedMuslim(e.target.checked)}
-                                            className="mt-1 w-5 h-5 rounded border-2 border-purple-500/30 bg-slate-800/50 checked:bg-purple-500 checked:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-slate-800 cursor-pointer transition-all"
-                                        />
-                                        <span className="flex-1 text-gray-300 group-hover:text-white transition-colors">
-                                            I confirm that I am Muslim. These iftars are intended for Muslims only.
-                                        </span>
-                                    </label>
+                        <div className="relative z-10">
+                            <div className="flex items-center justify-between mb-6">
+                                <div>
+                                    <h3 className="text-2xl font-bold text-white flex items-center gap-2">
+                                        <span>Tomorrow's Iftar</span>
+                                    </h3>
+                                    <p className="text-purple-200 font-medium text-lg">{formatDate(tomorrowDate)}</p>
                                 </div>
+                            </div>
 
+                            {/* Status Badge For Tomorrow */}
+                            {tomorrowBooking && (
+                                <div className="mb-6">
+                                    {tomorrowBooking.status === 'confirmed' && (
+                                        <div className="inline-flex items-center gap-2 bg-purple-500/10 border border-purple-500/30 text-purple-300 px-5 py-3 rounded-xl font-semibold">
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                            </svg>
+                                            <span>Confirmed</span>
+                                        </div>
+                                    )}
+                                    {tomorrowBooking.status === 'waitlist' && (
+                                        <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 text-amber-300 px-5 py-3 rounded-xl font-semibold">
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <span>Waitlisted</span>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Messages */}
+                            {message && (
+                                <div className={`mb-6 p-4 rounded-xl border ${message.includes('✅')
+                                    ? 'bg-purple-500/10 text-purple-300 border-purple-500/30'
+                                    : message.includes('⏳')
+                                        ? 'bg-amber-500/10 text-amber-300 border-amber-500/30'
+                                        : 'bg-red-500/10 text-red-300 border-red-500/30'
+                                    }`}>
+                                    {message}
+                                </div>
+                            )}
+
+                            {/* Main Action Area */}
+                            {!tomorrowDay ? (
+                                <div className="text-center py-8 text-gray-400 bg-slate-900/30 rounded-2xl border border-gray-700/50">
+                                    <p>No Iftar scheduled for tomorrow</p>
+                                </div>
+                            ) : !isRegistrationOpen ? (
+                                <div className="text-center py-12 bg-slate-900/30 rounded-2xl border border-purple-500/10">
+                                    <div className="inline-block p-4 bg-purple-500/10 rounded-full mb-4">
+                                        <svg className="w-8 h-8 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                    <h4 className="text-xl font-bold text-white mb-2">Registration Opens at 12:00 PM</h4>
+                                    <p className="text-gray-400">Check back at noon today to reserve your spot.</p>
+                                </div>
+                            ) : !tomorrowDay.is_open ? (
+                                <div className="text-center py-8 text-gray-400 bg-slate-900/30 rounded-2xl">
+                                    <p>Reservations are closed for tomorrow</p>
+                                </div>
+                            ) : tomorrowBooking ? (
                                 <button
-                                    onClick={handleReserve}
-                                    disabled={loading || !confirmedMuslim}
-                                    className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed text-white font-bold py-5 px-8 rounded-xl transition-all shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 hover:scale-[1.02] active:scale-[0.98] disabled:hover:scale-100 disabled:shadow-none"
+                                    onClick={() => handleCancelClick(tomorrowBooking.id, tomorrowDate)}
+                                    disabled={loading}
+                                    className="w-full bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 disabled:from-gray-600 disabled:to-gray-600 text-white font-semibold py-4 px-8 rounded-xl transition-all shadow-lg hover:shadow-red-500/25 hover:scale-[1.02] active:scale-[0.98]"
                                 >
-                                    {loading ? 'Processing...' : 'Reserve Spot for Today'}
+                                    {loading ? 'Processing...' : 'Cancel Reservation'}
                                 </button>
-                            </>
-                        )}
+                            ) : (
+                                <>
+                                    <div className="mb-6 bg-slate-700/30 border border-purple-500/20 rounded-xl p-5">
+                                        <label className="flex items-start gap-3 cursor-pointer group">
+                                            <input
+                                                type="checkbox"
+                                                checked={confirmedMuslim}
+                                                onChange={(e) => setConfirmedMuslim(e.target.checked)}
+                                                className="mt-1 w-5 h-5 rounded border-2 border-purple-500/30 bg-slate-800/50 checked:bg-purple-500 checked:border-purple-500 focus:ring-2 focus:ring-purple-500 cursor-pointer transition-all"
+                                            />
+                                            <span className="flex-1 text-gray-300 group-hover:text-white transition-colors">
+                                                I confirm that I am Muslim. These iftars are intended for Muslims only.
+                                            </span>
+                                        </label>
+                                    </div>
+
+                                    <button
+                                        onClick={handleReserve}
+                                        disabled={loading || !confirmedMuslim}
+                                        className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed text-white font-bold py-5 px-8 rounded-xl transition-all shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 hover:scale-[1.02] active:scale-[0.98]"
+                                    >
+                                        {loading ? 'Processing...' : 'Reserve Spot for Tomorrow'}
+                                    </button>
+                                </>
+                            )}
+                        </div>
                     </div>
 
-                    {/* Upcoming Reservations */}
+                    {/* SECONDARY CARD: TODAY'S IFTAR */}
+                    {todayDay && (
+                        <div className="bg-slate-800/30 border border-gray-700/50 rounded-2xl p-6 backdrop-blur-sm mb-8">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <h4 className="text-gray-400 text-sm uppercase tracking-wider font-semibold mb-1">
+                                        Today's Iftar ({formatDate(todayDate)})
+                                    </h4>
+
+                                    {!todayBooking ? (
+                                        <div className="flex items-center gap-2 text-gray-500">
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <span>No active reservation</span>
+                                        </div>
+                                    ) : todayBooking.status === 'confirmed' ? (
+                                        <div className="flex items-center gap-2 text-purple-300">
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                            </svg>
+                                            <span className="font-semibold">Confirmed</span>
+                                        </div>
+                                    ) : (
+                                        <div className="flex items-center gap-2 text-amber-300">
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <span className="font-semibold">Waitlisted</span>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Allow cancelling today's iftar too */}
+                                {todayBooking && (
+                                    <button
+                                        onClick={() => handleCancelClick(todayBooking.id, todayDate)}
+                                        className="text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 px-4 py-2 rounded-lg transition-colors"
+                                    >
+                                        Cancel
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* UPCOMING BOOKINGS LIST */}
                     {upcomingBookings.length > 0 && (
                         <div className="bg-slate-800/50 border border-purple-500/20 rounded-3xl p-8 backdrop-blur-xl shadow-2xl">
                             <h3 className="text-xl font-bold text-white mb-4">
-                                Your Upcoming Reservations
+                                Other Upcoming Reservations
                             </h3>
                             <div className="space-y-3">
                                 {upcomingBookings.map((booking: any) => (
@@ -296,10 +388,20 @@ export default function DashboardClient({
                                         </div>
                                         <div className="flex items-center gap-3">
                                             {booking.status === 'confirmed' && (
-                                                <span className="text-purple-300 font-semibold">✅ Confirmed</span>
+                                                <div className="flex items-center gap-1 text-purple-300 font-semibold">
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                    <span>Confirmed</span>
+                                                </div>
                                             )}
                                             {booking.status === 'waitlist' && (
-                                                <span className="text-amber-300 font-semibold">⏳ Waitlist</span>
+                                                <div className="flex items-center gap-1 text-amber-300 font-semibold">
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                    <span>Waitlist</span>
+                                                </div>
                                             )}
                                         </div>
                                     </div>
@@ -312,14 +414,14 @@ export default function DashboardClient({
 
             {/* Cancel Confirmation Dialog */}
             <ConfirmDialog
-                isOpen={showCancelDialog}
+                isOpen={!!cancelDialog}
                 title="Cancel Reservation?"
                 message="Are you sure you want to cancel your Iftar reservation? Someone from the waitlist may take your spot."
                 confirmText="Yes, Cancel"
                 cancelText="Keep Reservation"
                 confirmVariant="danger"
                 onConfirm={handleCancelConfirm}
-                onCancel={() => setShowCancelDialog(false)}
+                onCancel={() => setCancelDialog(null)}
             />
         </div>
     )
