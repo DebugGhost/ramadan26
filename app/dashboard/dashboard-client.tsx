@@ -1,10 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { reserveSpot, cancelBooking } from './actions'
 import type { User } from '@supabase/supabase-js'
 import type { Booking, Day, Profile } from '@/lib/types'
 import { createClient } from '@/lib/supabase/client'
+import ConfirmDialog from '@/components/ConfirmDialog'
 
 interface Props {
     user: User
@@ -29,11 +32,13 @@ export default function DashboardClient({
     capacityStats: initialStats,
     upcomingBookings,
 }: Props) {
+    const router = useRouter()
     const [booking, setBooking] = useState(initialBooking)
     const [capacityStats, setCapacityStats] = useState(initialStats)
     const [loading, setLoading] = useState(false)
     const [message, setMessage] = useState('')
     const [confirmedMuslim, setConfirmedMuslim] = useState(false)
+    const [showCancelDialog, setShowCancelDialog] = useState(false)
 
     // Real-time subscription for capacity updates
     useEffect(() => {
@@ -72,6 +77,9 @@ export default function DashboardClient({
                         .maybeSingle()
 
                     setBooking(userBooking as Booking | null)
+
+                    // Refresh the router to update any server-side data
+                    router.refresh()
                 }
             )
             .subscribe()
@@ -79,7 +87,7 @@ export default function DashboardClient({
         return () => {
             supabase.removeChannel(channel)
         }
-    }, [todayDate, user.id])
+    }, [todayDate, user.id, router])
 
     const handleReserve = async () => {
         if (!confirmedMuslim) {
@@ -93,23 +101,32 @@ export default function DashboardClient({
         setMessage(result.message)
         setLoading(false)
 
-        // Reset checkbox after successful reservation
+        // Reset checkbox and refresh UI after successful reservation
         if (result.success) {
             setConfirmedMuslim(false)
+            router.refresh()
         }
     }
 
-    const handleCancel = async () => {
+    const handleCancelClick = () => {
         if (!booking) return
+        setShowCancelDialog(true)
+    }
 
-        const confirmed = window.confirm('Are you sure you want to cancel your reservation?')
-        if (!confirmed) return
+    const handleCancelConfirm = async () => {
+        if (!booking) return
+        setShowCancelDialog(false)
 
         setLoading(true)
         setMessage('')
         const result = await cancelBooking(booking.id)
         setMessage(result.message)
         setLoading(false)
+
+        // Refresh UI after successful cancellation
+        if (result.success) {
+            router.refresh()
+        }
     }
 
     const handleSignOut = async () => {
@@ -140,9 +157,13 @@ export default function DashboardClient({
                 <header className="border-b border-blue-800/30 bg-slate-900/50 backdrop-blur-xl sticky top-0 z-10">
                     <div className="container mx-auto px-4 py-4 flex justify-between items-center">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-purple-500/10 rounded-xl flex items-center justify-center border border-purple-500/20">
-                                <span className="text-2xl">🌙</span>
-                            </div>
+                            <Image
+                                src="/MSAUofAlogo.webp"
+                                alt="UAlberta MSA"
+                                width={48}
+                                height={48}
+                                className="h-10 w-auto"
+                            />
                             <div>
                                 <h1 className="text-lg font-bold text-white">
                                     UAlberta MSA
@@ -222,7 +243,7 @@ export default function DashboardClient({
                             </div>
                         ) : booking ? (
                             <button
-                                onClick={handleCancel}
+                                onClick={handleCancelClick}
                                 disabled={loading}
                                 className="w-full bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 disabled:from-gray-600 disabled:to-gray-600 text-white font-semibold py-4 px-8 rounded-xl transition-all shadow-lg hover:shadow-red-500/25 hover:scale-[1.02] active:scale-[0.98]"
                             >
@@ -288,6 +309,18 @@ export default function DashboardClient({
                     )}
                 </main>
             </div>
+
+            {/* Cancel Confirmation Dialog */}
+            <ConfirmDialog
+                isOpen={showCancelDialog}
+                title="Cancel Reservation?"
+                message="Are you sure you want to cancel your Iftar reservation? Someone from the waitlist may take your spot."
+                confirmText="Yes, Cancel"
+                cancelText="Keep Reservation"
+                confirmVariant="danger"
+                onConfirm={handleCancelConfirm}
+                onCancel={() => setShowCancelDialog(false)}
+            />
         </div>
     )
 }

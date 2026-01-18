@@ -1,8 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import type { BookingWithProfile } from '@/lib/types'
+import ConfirmDialog from '@/components/ConfirmDialog'
 
 interface VolunteerPageProps {
     initialBookings: BookingWithProfile[]
@@ -16,6 +18,7 @@ export default function VolunteerClient({ initialBookings, todayDate }: Voluntee
     const [loading, setLoading] = useState(false)
     const [bookings, setBookings] = useState<BookingWithProfile[]>(initialBookings)
     const [searchTerm, setSearchTerm] = useState('')
+    const [uncheckDialog, setUncheckDialog] = useState<{ isOpen: boolean; bookingId: string; studentName: string } | null>(null)
 
     useEffect(() => {
         // Check if already authenticated via cookie
@@ -95,17 +98,17 @@ export default function VolunteerClient({ initialBookings, todayDate }: Voluntee
         }
     }
 
-    const handleCheckIn = async (bookingId: string, currentStatus: boolean, studentName: string) => {
-        // If they're already checked in and we're unchecking them, ask for confirmation
+    const handleCheckInClick = (bookingId: string, currentStatus: boolean, studentName: string) => {
+        // If they're already checked in and we're unchecking them, show confirmation dialog
         if (currentStatus) {
-            const confirmed = window.confirm(
-                `Are you sure you want to UN-CHECK ${studentName}?\n\nThis will mark them as NOT checked in.`
-            )
-            if (!confirmed) {
-                return // Don't proceed with uncheck
-            }
+            setUncheckDialog({ isOpen: true, bookingId, studentName })
+            return
         }
+        // Otherwise, just check them in directly
+        performCheckIn(bookingId, false)
+    }
 
+    const performCheckIn = async (bookingId: string, currentStatus: boolean) => {
         try {
             const response = await fetch('/api/volunteer/check-in', {
                 method: 'POST',
@@ -132,6 +135,15 @@ export default function VolunteerClient({ initialBookings, todayDate }: Voluntee
             alert('An error occurred')
         }
     }
+
+    const handleUncheckConfirm = () => {
+        if (uncheckDialog) {
+            performCheckIn(uncheckDialog.bookingId, true)
+            setUncheckDialog(null)
+        }
+    }
+
+
 
     const formatDate = (dateString: string) => {
         const date = new Date(dateString + 'T00:00:00')
@@ -224,9 +236,13 @@ export default function VolunteerClient({ initialBookings, todayDate }: Voluntee
                     <div className="container mx-auto px-4 py-4">
                         <div className="flex justify-between items-center">
                             <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center border border-purple-500/20">
-                                    <span className="text-3xl">✓</span>
-                                </div>
+                                <Image
+                                    src="/MSAUofAlogo.webp"
+                                    alt="UAlberta MSA"
+                                    width={56}
+                                    height={56}
+                                    className="h-12 w-auto"
+                                />
                                 <div>
                                     <h1 className="text-xl md:text-2xl font-bold text-white">
                                         Volunteer Check-In
@@ -282,7 +298,7 @@ export default function VolunteerClient({ initialBookings, todayDate }: Voluntee
                                             </p>
                                         </div>
                                         <button
-                                            onClick={() => handleCheckIn(booking.id, booking.checked_in, booking.profiles.full_name || 'this student')}
+                                            onClick={() => handleCheckInClick(booking.id, booking.checked_in, booking.profiles.full_name || 'this student')}
                                             className={`px-6 py-3 rounded-xl font-semibold transition-all shadow-lg ${booking.checked_in
                                                 ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white shadow-purple-500/25'
                                                 : 'bg-slate-700 hover:bg-slate-600 text-gray-300 hover:text-white border border-purple-500/20'
@@ -297,6 +313,17 @@ export default function VolunteerClient({ initialBookings, todayDate }: Voluntee
                     </div>
                 </main>
             </div>
+            {/* Uncheck Confirmation Dialog */}
+            <ConfirmDialog
+                isOpen={!!uncheckDialog}
+                title="Un-check Student?"
+                message={`Are you sure you want to mark ${uncheckDialog?.studentName} as NOT checked in?`}
+                confirmText="Yes, Un-check"
+                cancelText="Cancel"
+                confirmVariant="danger"
+                onConfirm={handleUncheckConfirm}
+                onCancel={() => setUncheckDialog(null)}
+            />
         </div>
     )
 }

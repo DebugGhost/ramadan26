@@ -30,7 +30,7 @@ export default async function Home({
         <header className="border-b border-blue-800/30 bg-slate-900/50 backdrop-blur-xl">
           <div className="container mx-auto px-4 py-4 flex items-center gap-4">
             <Image
-              src="/msa-logo.png"
+              src="/MSAUofAlogo.webp"
               alt="UAlberta MSA"
               width={60}
               height={60}

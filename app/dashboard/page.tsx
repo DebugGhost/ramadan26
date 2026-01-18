@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import DashboardClient from './dashboard-client'
 import type { Booking, Day } from '@/lib/types'
+import { getTodayInEdmonton } from '@/lib/date-utils'
 
 export default async function DashboardPage() {
     const supabase = await createClient()
@@ -19,8 +20,8 @@ export default async function DashboardPage() {
         .eq('id', user.id)
         .single()
 
-    // Get today's date (MST/Edmonton timezone)
-    const today = new Date().toLocaleDateString('en-CA') // Format: YYYY-MM-DD
+    // Get today's date in Edmonton timezone
+    const today = getTodayInEdmonton()
 
     // Get today's day info
     const { data: todayDay } = await supabase
