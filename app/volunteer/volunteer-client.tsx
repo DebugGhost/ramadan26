@@ -175,7 +175,13 @@ export default function VolunteerClient({ initialBookings, todayDate }: Voluntee
 
                 <div className="relative bg-slate-800/50 border border-purple-500/20 backdrop-blur-xl rounded-3xl shadow-2xl p-8 md:p-12 max-w-md w-full">
                     <div className="text-center mb-8">
-                        <div className="text-6xl mb-4">🔐</div>
+                        <div className="flex justify-center mb-4">
+                            <div className="bg-purple-500/10 p-4 rounded-2xl border border-purple-500/20">
+                                <svg className="w-12 h-12 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                </svg>
+                            </div>
+                        </div>
                         <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">
                             Volunteer Kiosk
                         </h1>
@@ -265,13 +271,18 @@ export default function VolunteerClient({ initialBookings, todayDate }: Voluntee
                 {/* Main Content */}
                 <main className="container mx-auto px-4 py-8 max-w-5xl">
                     {/* Search Bar */}
-                    <div className="mb-6">
+                    <div className="mb-6 relative">
+                        <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
+                            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
                         <input
                             type="text"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            placeholder="🔍 Search by name or email..."
-                            className="w-full px-6 py-4 bg-slate-800/50 border border-purple-500/20 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
+                            placeholder="Search by name or email..."
+                            className="w-full pl-14 pr-6 py-4 bg-slate-800/50 border border-purple-500/20 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
                         />
                     </div>
 
@@ -304,7 +315,14 @@ export default function VolunteerClient({ initialBookings, todayDate }: Voluntee
                                                 : 'bg-slate-700 hover:bg-slate-600 text-gray-300 hover:text-white border border-purple-500/20'
                                                 }`}
                                         >
-                                            {booking.checked_in ? '✓ Checked In' : 'Check In'}
+                                            {booking.checked_in ? (
+                                                <div className="flex items-center gap-2">
+                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                    Checked In
+                                                </div>
+                                            ) : 'Check In'}
                                         </button>
                                     </div>
                                 ))}

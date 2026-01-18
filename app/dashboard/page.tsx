@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import DashboardClient from './dashboard-client'
 import type { Booking, Day } from '@/lib/types'
-import { getTodayInEdmonton } from '@/lib/date-utils'
+import { getTodayInEdmonton, getTomorrowInEdmonton, getCurrentHourInEdmonton } from '@/lib/date-utils'
 
 export default async function DashboardPage() {
     const supabase = await createClient()
@@ -20,54 +20,63 @@ export default async function DashboardPage() {
         .eq('id', user.id)
         .single()
 
-    // Get today's date in Edmonton timezone
+    // Get dates and timing logic
     const today = getTodayInEdmonton()
+    const tomorrow = getTomorrowInEdmonton()
+    const currentHour = getCurrentHourInEdmonton()
 
-    // Get today's day info
-    const { data: todayDay } = await supabase
+    // Registration for tomorrow opens at 12:00 PM (noon) Today
+    const isRegistrationOpen = currentHour >= 12
+
+    // 1. Get Day Info for Today and Tomorrow
+    const { data: days } = await supabase
         .from('days')
         .select('*')
-        .eq('date', today)
-        .single()
+        .in('date', [today, tomorrow])
 
-    // Get user's booking for today (if any)
-    const { data: todayBooking } = await supabase
+    const todayDay = days?.find(d => d.date === today) || null
+    const tomorrowDay = days?.find(d => d.date === tomorrow) || null
+
+    // 2. Get User's Bookings for Today and Tomorrow
+    const { data: userBookings } = await supabase
         .from('bookings')
         .select('*')
         .eq('user_id', user.id)
-        .eq('day_id', today)
+        .in('day_id', [today, tomorrow])
         .in('status', ['confirmed', 'waitlist'])
-        .maybeSingle()
 
-    // Get capacity stats for today
-    let capacityStats = {
+    const todayBooking = userBookings?.find(b => b.day_id === today) || null
+    const tomorrowBooking = userBookings?.find(b => b.day_id === tomorrow) || null
+
+    // 3. Get Capacity Stats for Tomorrow (for the Main Card)
+    let tomorrowStats = {
         confirmed: 0,
         waitlist: 0,
-        capacity_limit: 235,
+        capacity_limit: tomorrowDay?.capacity_limit || 235,
     }
 
-    if (todayDay) {
+    if (tomorrowDay) {
         const { data: bookings } = await supabase
             .from('bookings')
             .select('status')
-            .eq('day_id', today)
+            .eq('day_id', tomorrow)
 
         const confirmed = bookings?.filter(b => b.status === 'confirmed').length || 0
         const waitlist = bookings?.filter(b => b.status === 'waitlist').length || 0
 
-        capacityStats = {
+        tomorrowStats = {
             confirmed,
             waitlist,
-            capacity_limit: todayDay.capacity_limit,
+            capacity_limit: tomorrowDay.capacity_limit,
         }
     }
 
-    // Get all user's upcoming bookings
+    // 4. Get all other upcoming bookings (Day after Tomorrow onwards)
     const { data: upcomingBookings } = await supabase
         .from('bookings')
         .select('*, days(*)')
         .eq('user_id', user.id)
-        .gte('day_id', today)
+        .gt('day_id', tomorrow) // Bookings AFTER tomorrow
         .in('status', ['confirmed', 'waitlist'])
         .order('day_id', { ascending: true })
 
@@ -76,9 +85,13 @@ export default async function DashboardPage() {
             user={user}
             profile={profile}
             todayDate={today}
+            tomorrowDate={tomorrow}
             todayDay={todayDay}
+            tomorrowDay={tomorrowDay}
             todayBooking={todayBooking as Booking | null}
-            capacityStats={capacityStats}
+            tomorrowBooking={tomorrowBooking as Booking | null}
+            tomorrowStats={tomorrowStats}
+            isRegistrationOpen={isRegistrationOpen}
             upcomingBookings={(upcomingBookings || []) as any[]}
         />
     )

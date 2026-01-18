@@ -23,7 +23,7 @@ export async function sendPromotionEmail({ to, userName, date, cancelUrl }: Prom
     const { data, error } = await resend.emails.send({
         from: 'UAlberta MSA <noreply@ualbertamsa.com>',
         to: [to],
-        subject: `🌙 Great News! Your Iftar Spot is Confirmed for ${formattedDate}`,
+        subject: `Great News! Your Iftar Spot is Confirmed for ${formattedDate}`,
         html: `
 <!DOCTYPE html>
 <html>
@@ -40,7 +40,7 @@ export async function sendPromotionEmail({ to, userName, date, cancelUrl }: Prom
                     <tr>
                         <td align="center" style="padding-bottom: 30px;">
                             <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #8b5cf6, #3b82f6); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
-                                <span style="font-size: 32px;">🌙</span>
+                                <span style="font-size: 32px; color: white; font-weight: bold;">M</span>
                             </div>
                             <h1 style="color: #ffffff; font-size: 24px; font-weight: 700; margin: 0;">UAlberta MSA</h1>
                             <p style="color: #a78bfa; font-size: 14px; margin: 4px 0 0;">Iftar Portal</p>
@@ -52,7 +52,7 @@ export async function sendPromotionEmail({ to, userName, date, cancelUrl }: Prom
                         <td style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(139, 92, 246, 0.2); border-radius: 24px; padding: 40px;">
                             <!-- Celebration -->
                             <div style="text-align: center; margin-bottom: 30px;">
-                                <span style="font-size: 48px;">🎉</span>
+                                <!-- Empty spacer or removed confetti -->
                             </div>
                             
                             <!-- Greeting -->
@@ -74,7 +74,7 @@ export async function sendPromotionEmail({ to, userName, date, cancelUrl }: Prom
                             <!-- Confirmation Badge -->
                             <div style="text-align: center; margin-bottom: 30px;">
                                 <span style="display: inline-block; background: rgba(139, 92, 246, 0.15); border: 1px solid rgba(139, 92, 246, 0.4); color: #c4b5fd; padding: 12px 24px; border-radius: 12px; font-weight: 600;">
-                                    ✅ Confirmed Reservation
+                                    Confirmed Reservation
                                 </span>
                             </div>
                             
@@ -117,7 +117,7 @@ A spot has opened up and you've been moved from the waitlist to CONFIRMED for If
 
 Your Confirmed Iftar Date: ${formattedDate}
 
-✅ Confirmed Reservation
+Confirmed Reservation
 
 If you can no longer attend, please cancel your reservation so someone else can take your spot.
 

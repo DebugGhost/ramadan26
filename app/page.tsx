@@ -52,7 +52,9 @@ export default async function Home({
             <div className="text-center mb-16">
               <div className="inline-block mb-6">
                 <div className="flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-full">
-                  <span className="text-2xl">🌙</span>
+                  <svg className="w-5 h-5 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                  </svg>
                   <span className="text-purple-300 font-semibold">Ramadan 2026</span>
                 </div>
               </div>
@@ -73,7 +75,11 @@ export default async function Home({
             {error === 'non_ualberta_email' && (
               <div className="mb-8 bg-red-500/10 border-2 border-red-500/30 rounded-2xl p-6 backdrop-blur-sm">
                 <div className="flex items-start gap-4">
-                  <div className="text-3xl">🚫</div>
+                  <div className="bg-red-500/20 p-2 rounded-lg">
+                    <svg className="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                  </div>
                   <div className="flex-1">
                     <h3 className="text-xl font-bold text-red-300 mb-2">
                       Access Restricted
@@ -115,7 +121,11 @@ export default async function Home({
                   Sign in to reserve your spot for Iftar
                 </p>
                 <div className="inline-flex items-center gap-2 px-5 py-3 bg-purple-500/15 border-2 border-purple-400/40 rounded-xl">
-                  <span className="text-lg">🎓</span>
+                  <svg className="w-6 h-6 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 14l9-5-9-5-9 5 9 5z" />
+                    <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
+                  </svg>
                   <span className="text-purple-300 font-bold text-lg">@ualberta.ca email required</span>
                 </div>
               </div>
