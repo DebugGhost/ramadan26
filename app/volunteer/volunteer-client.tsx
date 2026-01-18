@@ -157,11 +157,11 @@ export default function VolunteerClient({ initialBookings, todayDate }: Voluntee
     // PIN Entry Screen
     if (!isAuthenticated) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center p-4">
+            <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-purple-950 flex items-center justify-center p-4">
                 {/* Overlay pattern */}
                 <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"></div>
 
-                <div className="relative bg-slate-800/50 border border-blue-500/20 backdrop-blur-xl rounded-3xl shadow-2xl p-8 md:p-12 max-w-md w-full">
+                <div className="relative bg-slate-800/50 border border-purple-500/20 backdrop-blur-xl rounded-3xl shadow-2xl p-8 md:p-12 max-w-md w-full">
                     <div className="text-center mb-8">
                         <div className="text-6xl mb-4">🔐</div>
                         <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">
@@ -180,7 +180,7 @@ export default function VolunteerClient({ initialBookings, todayDate }: Voluntee
                             value={pin}
                             onChange={(e) => setPin(e.target.value)}
                             placeholder="Enter PIN"
-                            className="w-full px-4 py-4 bg-slate-700/50 border border-blue-500/30 rounded-xl mb-4 text-center text-2xl tracking-widest focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-400"
+                            className="w-full px-4 py-4 bg-slate-700/50 border border-purple-500/30 rounded-xl mb-4 text-center text-2xl tracking-widest focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
                             autoFocus
                         />
 
@@ -193,7 +193,7 @@ export default function VolunteerClient({ initialBookings, todayDate }: Voluntee
                         <button
                             type="submit"
                             disabled={loading || !pin}
-                            className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 disabled:from-gray-600 disabled:to-gray-600 text-white font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-blue-500/25 hover:scale-[1.02] active:scale-[0.98]"
+                            className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 disabled:from-gray-600 disabled:to-gray-600 text-white font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-purple-500/25 hover:scale-[1.02] active:scale-[0.98]"
                         >
                             {loading ? 'Verifying...' : 'Access Kiosk'}
                         </button>
@@ -214,30 +214,30 @@ export default function VolunteerClient({ initialBookings, todayDate }: Voluntee
 
     // Check-In Interface
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+        <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-purple-950">
             {/* Overlay pattern */}
             <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"></div>
 
             <div className="relative">
                 {/* Header */}
-                <header className="border-b border-blue-800/30 bg-slate-900/50 backdrop-blur-xl sticky top-0 z-10">
+                <header className="border-b border-purple-800/30 bg-slate-900/50 backdrop-blur-xl sticky top-0 z-10">
                     <div className="container mx-auto px-4 py-4">
                         <div className="flex justify-between items-center">
                             <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center border border-blue-500/20">
+                                <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center border border-purple-500/20">
                                     <span className="text-3xl">✓</span>
                                 </div>
                                 <div>
                                     <h1 className="text-xl md:text-2xl font-bold text-white">
                                         Volunteer Check-In
                                     </h1>
-                                    <p className="text-sm text-blue-300">
+                                    <p className="text-sm text-purple-300">
                                         {formatDate(todayDate)}
                                     </p>
                                 </div>
                             </div>
                             <div className="text-right">
-                                <div className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                                <div className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
                                     {checkedInCount}/{totalCount}
                                 </div>
                                 <div className="text-sm text-gray-400">Checked In</div>
@@ -255,22 +255,22 @@ export default function VolunteerClient({ initialBookings, todayDate }: Voluntee
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             placeholder="🔍 Search by name or email..."
-                            className="w-full px-6 py-4 bg-slate-800/50 border border-blue-500/20 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-400"
+                            className="w-full px-6 py-4 bg-slate-800/50 border border-purple-500/20 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
                         />
                     </div>
 
                     {/* Bookings List */}
-                    <div className="bg-slate-800/50 border border-blue-500/20 rounded-3xl overflow-hidden backdrop-blur-xl shadow-2xl">
+                    <div className="bg-slate-800/50 border border-purple-500/20 rounded-3xl overflow-hidden backdrop-blur-xl shadow-2xl">
                         {filteredBookings.length === 0 ? (
                             <div className="p-12 text-center text-gray-400">
                                 {searchTerm ? 'No results found' : 'No confirmed bookings for today'}
                             </div>
                         ) : (
-                            <div className="divide-y divide-blue-500/10">
+                            <div className="divide-y divide-purple-500/10">
                                 {filteredBookings.map((booking) => (
                                     <div
                                         key={booking.id}
-                                        className={`p-6 flex items-center justify-between hover:bg-slate-700/30 transition ${booking.checked_in ? 'bg-emerald-500/10' : ''
+                                        className={`p-6 flex items-center justify-between hover:bg-slate-700/30 transition ${booking.checked_in ? 'bg-purple-500/10' : ''
                                             }`}
                                     >
                                         <div className="flex-1">
@@ -284,8 +284,8 @@ export default function VolunteerClient({ initialBookings, todayDate }: Voluntee
                                         <button
                                             onClick={() => handleCheckIn(booking.id, booking.checked_in, booking.profiles.full_name || 'this student')}
                                             className={`px-6 py-3 rounded-xl font-semibold transition-all shadow-lg ${booking.checked_in
-                                                ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white shadow-emerald-500/25'
-                                                : 'bg-slate-700 hover:bg-slate-600 text-gray-300 hover:text-white border border-blue-500/20'
+                                                ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white shadow-purple-500/25'
+                                                : 'bg-slate-700 hover:bg-slate-600 text-gray-300 hover:text-white border border-purple-500/20'
                                                 }`}
                                         >
                                             {booking.checked_in ? '✓ Checked In' : 'Check In'}

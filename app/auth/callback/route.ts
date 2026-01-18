@@ -20,7 +20,7 @@ export async function GET(request: Request) {
 
                 // Redirect to home with error
                 const errorUrl = new URL('/', origin)
-                errorUrl.searchParams.set('error', 'unauthorized_domain')
+                errorUrl.searchParams.set('error', 'non_ualberta_email')
                 return NextResponse.redirect(errorUrl)
             }
 

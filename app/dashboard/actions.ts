@@ -4,9 +4,14 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import type { ReserveSpotResult } from '@/lib/types'
 
-export async function reserveSpot(date: string): Promise<{ success: boolean; message: string; result?: ReserveSpotResult }> {
+export async function reserveSpot(date: string, confirmedMuslim: boolean): Promise<{ success: boolean; message: string; result?: ReserveSpotResult }> {
     try {
         const supabase = await createClient()
+
+        // Verify Muslim confirmation
+        if (!confirmedMuslim) {
+            return { success: false, message: '⚠️ You must confirm that you are Muslim to reserve a spot.' }
+        }
 
         // Verify authentication
         const { data: { session } } = await supabase.auth.getSession()

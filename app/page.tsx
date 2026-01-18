@@ -3,7 +3,11 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -12,14 +16,18 @@ export default async function Home() {
     redirect('/dashboard')
   }
 
+  // Get error from URL params
+  const params = await searchParams
+  const error = params?.error
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-purple-950">
       {/* Overlay pattern */}
       <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"></div>
 
       <div className="relative">
         {/* Header */}
-        <header className="border-b border-emerald-800/30 bg-slate-900/50 backdrop-blur-xl">
+        <header className="border-b border-blue-800/30 bg-slate-900/50 backdrop-blur-xl">
           <div className="container mx-auto px-4 py-4 flex items-center gap-4">
             <Image
               src="/msa-logo.png"
@@ -32,7 +40,7 @@ export default async function Home() {
               <h1 className="text-xl font-bold text-white">
                 UAlberta MSA
               </h1>
-              <p className="text-sm text-emerald-300">Iftar Portal</p>
+              <p className="text-sm text-purple-300">Iftar Portal</p>
             </div>
           </div>
         </header>
@@ -43,15 +51,15 @@ export default async function Home() {
             {/* Hero Section */}
             <div className="text-center mb-16">
               <div className="inline-block mb-6">
-                <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
+                <div className="flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-full">
                   <span className="text-2xl">🌙</span>
-                  <span className="text-emerald-300 font-semibold">Ramadan 2026</span>
+                  <span className="text-purple-300 font-semibold">Ramadan 2026</span>
                 </div>
               </div>
 
               <h2 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
                 Welcome to
-                <span className="block bg-gradient-to-r from-emerald-400 to-amber-400 bg-clip-text text-transparent">
+                <span className="block bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
                   Ramadan Iftar
                 </span>
               </h2>
@@ -61,37 +69,61 @@ export default async function Home() {
               </p>
             </div>
 
+            {/* Error Alert */}
+            {error === 'non_ualberta_email' && (
+              <div className="mb-8 bg-red-500/10 border-2 border-red-500/30 rounded-2xl p-6 backdrop-blur-sm">
+                <div className="flex items-start gap-4">
+                  <div className="text-3xl">🚫</div>
+                  <div className="flex-1">
+                    <h3 className="text-xl font-bold text-red-300 mb-2">
+                      Access Restricted
+                    </h3>
+                    <p className="text-red-200 mb-3">
+                      This portal is exclusively for University of Alberta students, faculty, and staff.
+                    </p>
+                    <p className="text-red-200">
+                      Please sign in using your <span className="font-bold text-red-100">@ualberta.ca</span> email address.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Stats Cards */}
             <div className="grid md:grid-cols-3 gap-6 mb-12">
-              <div className="bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 border border-emerald-500/20 rounded-2xl p-6 backdrop-blur-sm">
-                <div className="text-4xl font-bold text-emerald-400 mb-2">235</div>
+              <div className="bg-gradient-to-br from-purple-500/10 to-purple-600/5 border border-purple-500/20 rounded-2xl p-6 backdrop-blur-sm">
+                <div className="text-4xl font-bold text-purple-400 mb-2">235</div>
                 <div className="text-sm text-gray-300">Daily Capacity</div>
               </div>
-              <div className="bg-gradient-to-br from-amber-500/10 to-amber-600/5 border border-amber-500/20 rounded-2xl p-6 backdrop-blur-sm">
-                <div className="text-4xl font-bold text-amber-400 mb-2">22</div>
+              <div className="bg-gradient-to-br from-blue-500/10 to-blue-600/5 border border-blue-500/20 rounded-2xl p-6 backdrop-blur-sm">
+                <div className="text-4xl font-bold text-blue-400 mb-2">22</div>
                 <div className="text-sm text-gray-300">Serving Days</div>
               </div>
-              <div className="bg-gradient-to-br from-blue-500/10 to-blue-600/5 border border-blue-500/20 rounded-2xl p-6 backdrop-blur-sm">
-                <div className="text-4xl font-bold text-blue-400 mb-2">10</div>
+              <div className="bg-gradient-to-br from-purple-500/10 to-purple-600/5 border border-purple-500/20 rounded-2xl p-6 backdrop-blur-sm">
+                <div className="text-4xl font-bold text-purple-400 mb-2">10</div>
                 <div className="text-sm text-gray-300">Waitlist Spots</div>
               </div>
             </div>
 
             {/* Sign In Card */}
-            <div className="bg-slate-800/50 border border-emerald-500/20 rounded-3xl p-8 md:p-12 backdrop-blur-xl shadow-2xl">
+            <div className="bg-slate-800/50 border border-purple-500/20 rounded-3xl p-8 md:p-12 backdrop-blur-xl shadow-2xl">
               <div className="text-center mb-8">
                 <h3 className="text-3xl font-bold text-white mb-3">
                   Get Started
                 </h3>
-                <p className="text-gray-300">
-                  Sign in with your <span className="text-emerald-400 font-semibold">@ualberta.ca</span> email to reserve your spot
+                <p className="text-gray-300 mb-4">
+                  Sign in to reserve your spot for Iftar
                 </p>
+                <div className="inline-flex items-center gap-2 px-5 py-3 bg-purple-500/15 border-2 border-purple-400/40 rounded-xl">
+                  <span className="text-lg">🎓</span>
+                  <span className="text-purple-300 font-bold text-lg">@ualberta.ca email required</span>
+                </div>
               </div>
 
               <form action="/auth/sign-in" method="post">
                 <button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold py-5 px-8 rounded-xl transition-all shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-3 group"
+                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold py-5 px-8 rounded-xl transition-all shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-3 group"
                 >
                   <svg className="w-6 h-6" viewBox="0 0 24 24">
                     <path
@@ -118,8 +150,8 @@ export default async function Home() {
                 </button>
               </form>
 
-              <p className="text-sm text-gray-400 mt-6 text-center">
-                🔒 Only @ualberta.ca emails are permitted
+              <p className="text-xs text-gray-500 mt-6 text-center">
+                🔒 Secure authentication via Google
               </p>
             </div>
 
@@ -127,7 +159,7 @@ export default async function Home() {
             <div className="mt-12 text-center">
               <Link
                 href="/volunteer"
-                className="inline-flex items-center gap-2 text-emerald-400 hover:text-emerald-300 transition-colors font-medium group"
+                className="inline-flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-colors font-medium group"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -142,7 +174,7 @@ export default async function Home() {
         </main>
 
         {/* Footer */}
-        <footer className="border-t border-emerald-800/30 bg-slate-900/50 backdrop-blur-xl mt-16">
+        <footer className="border-t border-blue-800/30 bg-slate-900/50 backdrop-blur-xl mt-16">
           <div className="container mx-auto px-4 py-8 text-center">
             <p className="text-gray-400 text-sm mb-2">University of Alberta Muslim Students' Association</p>
             <p className="text-gray-500 text-xs">Ramadan 2026 • Feb 18 - Mar 18</p>
