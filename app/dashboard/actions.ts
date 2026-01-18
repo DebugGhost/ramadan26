@@ -82,11 +82,11 @@ export async function cancelBooking(bookingId: string): Promise<{ success: boole
             return { success: false, message: 'You must be logged in to cancel a booking' }
         }
 
-        // Update the booking status to 'cancelled'
+        // Delete the booking row so the user can re-book if they want
         // RLS policy ensures users can only cancel their own bookings
         const { error } = await supabase
             .from('bookings')
-            .update({ status: 'cancelled' })
+            .delete()
             .eq('id', bookingId)
             .eq('user_id', user.id) // Extra safety check
 
@@ -96,7 +96,7 @@ export async function cancelBooking(bookingId: string): Promise<{ success: boole
         }
 
         revalidatePath('/dashboard')
-        return { success: true, message: '✅ Reservation cancelled successfully.' }
+        return { success: true, message: '✅ Reservation cancelled successfully. You can now book again.' }
 
     } catch (error) {
         console.error('Cancel booking exception:', error)
