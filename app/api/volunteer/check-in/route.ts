@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createServerClient } from '@supabase/ssr'
 import type { Database } from '@/lib/types'
 
 export async function POST(request: NextRequest) {
@@ -23,24 +23,28 @@ export async function POST(request: NextRequest) {
         }
 
         // Use service role client for full access (bypasses RLS)
-        const supabase = createClient<Database>(
+        const supabase = createServerClient<Database>(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
             process.env.SUPABASE_SERVICE_ROLE_KEY!,
             {
-                auth: {
-                    autoRefreshToken: false,
-                    persistSession: false,
+                cookies: {
+                    getAll() { return [] },
+                    setAll() { },
                 },
             }
         )
 
+        // Prepare update data with explicit typing
+        type BookingsUpdate = Database['public']['Tables']['bookings']['Update']
+        const updateValues: BookingsUpdate = {
+            checked_in: checkedIn,
+            checked_in_at: checkedIn ? new Date().toISOString() : null,
+        }
+
         // Update check-in status
-        const { data, error } = await supabase
-            .from('bookings')
-            .update({
-                checked_in: checkedIn,
-                checked_in_at: checkedIn ? new Date().toISOString() : null,
-            })
+        // Type assertion needed due to Supabase SSR type inference issue
+        const { data, error } = await (supabase.from('bookings') as any)
+            .update(updateValues)
             .eq('id', bookingId)
             .select()
             .single()

@@ -2,6 +2,9 @@ import { createClient } from '@supabase/supabase-js'
 import VolunteerClient from './volunteer-client'
 import type { Database, BookingWithProfile } from '@/lib/types'
 
+// Force dynamic rendering - this page needs runtime access to env vars
+export const dynamic = 'force-dynamic'
+
 export default async function VolunteerPage() {
     // Get today's date
     const today = new Date().toLocaleDateString('en-CA') // Format: YYYY-MM-DD
