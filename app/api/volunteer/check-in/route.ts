@@ -34,14 +34,17 @@ export async function POST(request: NextRequest) {
             }
         )
 
+        // Prepare update data with explicit typing
+        type BookingsUpdate = Database['public']['Tables']['bookings']['Update']
+        const updateValues: BookingsUpdate = {
+            checked_in: checkedIn,
+            checked_in_at: checkedIn ? new Date().toISOString() : null,
+        }
+
         // Update check-in status
-        // @ts-ignore - TypeScript incorrectly infers bookings table type as never in build context
-        const { data, error } = await supabase
-            .from('bookings')
-            .update({
-                checked_in: checkedIn,
-                checked_in_at: checkedIn ? new Date().toISOString() : null,
-            })
+        // Type assertion needed due to Supabase SSR type inference issue
+        const { data, error } = await (supabase.from('bookings') as any)
+            .update(updateValues)
             .eq('id', bookingId)
             .select()
             .single()
