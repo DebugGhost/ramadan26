@@ -39,9 +39,7 @@ export async function sendPromotionEmail({ to, userName, date, cancelUrl }: Prom
                     <!-- Header -->
                     <tr>
                         <td align="center" style="padding-bottom: 30px;">
-                            <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #8b5cf6, #3b82f6); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
-                                <span style="font-size: 32px; color: white; font-weight: bold;">M</span>
-                            </div>
+                            <img src={`${ process.env.NEXT_PUBLIC_SITE_URL } / MSAUofAlogo.webp`} alt="UAlberta MSA Logo" width="80" height="80" style="display: block; margin: 0 auto 16px; width: 80px; height: 80px; object-fit: contain;" />
                             <h1 style="color: #ffffff; font-size: 24px; font-weight: 700; margin: 0;">UAlberta MSA</h1>
                             <p style="color: #a78bfa; font-size: 14px; margin: 4px 0 0;">Iftar Portal</p>
                         </td>
@@ -128,10 +126,10 @@ This email was sent by UAlberta MSA Iftar Portal.
         `.trim()
     })
 
-    if (error) {
-        console.error('Failed to send promotion email:', error)
-        throw new Error(`Failed to send email: ${error.message}`)
-    }
+if (error) {
+    console.error('Failed to send promotion email:', error)
+    throw new Error(`Failed to send email: ${error.message}`)
+}
 
-    return data
+return data
 }
