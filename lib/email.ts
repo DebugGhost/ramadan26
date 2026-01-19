@@ -21,7 +21,7 @@ export async function sendPromotionEmail({ to, userName, date, cancelUrl }: Prom
     })
 
     const { data, error } = await resend.emails.send({
-        from: 'UAlberta MSA <noreply@msauofa.ca>',
+        from: 'UAlberta MSA <iftaar@msauofa.ca>',
         to: [to],
         subject: `Great News! Your Iftar Spot is Confirmed for ${formattedDate}`,
         html: `
