@@ -40,8 +40,8 @@ export async function sendPromotionEmail({ to, userName, date, cancelUrl }: Prom
                     <!-- Header -->
                     <tr>
                         <td align="center" style="padding-bottom: 30px;">
-                            <img src="https://assets.zyrosite.com/YZ98DWkXGEI2ae7Z/msauofalogo-j5PyrlgnXc4rcnfD.webp" alt="UAlberta MSA Logo" width="160" style="display: block; margin: 0 auto 16px; width: 160px; height: auto; object-fit: contain;" />
-                            <h1 style="color: #ffffff; font-size: 24px; font-weight: 700; margin: 0;">UAlberta MSA</h1>
+                            <img src="https://assets.zyrosite.com/YZ98DWkXGEI2ae7Z/msauofalogo-j5PyrlgnXc4rcnfD.webp" alt="MSA UofA Logo" width="160" style="display: block; margin: 0 auto 16px; width: 160px; height: auto; object-fit: contain;" />
+                            <h1 style="color: #ffffff; font-size: 24px; font-weight: 700; margin: 0;">MSA UofA</h1>
                             <p style="color: #a78bfa; font-size: 14px; margin: 4px 0 0;">Iftar Portal</p>
                         </td>
                     </tr>
@@ -97,7 +97,7 @@ export async function sendPromotionEmail({ to, userName, date, cancelUrl }: Prom
                     <tr>
                         <td style="padding-top: 30px; text-align: center;">
                             <p style="color: #64748b; font-size: 12px; line-height: 1.6; margin: 0;">
-                                This email was sent by UAlberta MSA Iftar Portal.<br>
+                                This email was sent by MSA UofA Iftar Portal.<br>
                                 If you have any questions, please contact us.
                             </p>
                         </td>
@@ -123,7 +123,7 @@ If you can no longer attend, please cancel your reservation so someone else can 
 Cancel your reservation here: ${cancelUrl}
 
 ---
-This email was sent by UAlberta MSA Iftar Portal.
+This email was sent by MSA UofA Iftar Portal.
         `.trim()
     })
 
