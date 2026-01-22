@@ -39,7 +39,7 @@ export async function sendPromotionEmail({ to, userName, date, cancelUrl }: Prom
                     <!-- Header -->
                     <tr>
                         <td align="center" style="padding-bottom: 30px;">
-                            <img src="${process.env.NEXT_PUBLIC_SITE_URL}/MSAUofAlogo.webp" alt="UAlberta MSA Logo" width="80" height="80" style="display: block; margin: 0 auto 16px; width: 80px; height: 80px; object-fit: contain;" />
+                            <img src="https://assets.zyrosite.com/YZ98DWkXGEI2ae7Z/msauofalogo-j5PyrlgnXc4rcnfD.webp" alt="UAlberta MSA Logo" width="160" style="display: block; margin: 0 auto 16px; width: 160px; height: auto; object-fit: contain;" />
                             <h1 style="color: #ffffff; font-size: 24px; font-weight: 700; margin: 0;">UAlberta MSA</h1>
                             <p style="color: #a78bfa; font-size: 14px; margin: 4px 0 0;">Iftar Portal</p>
                         </td>
