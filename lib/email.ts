@@ -22,7 +22,7 @@ export async function sendPromotionEmail({ to, userName, date, cancelUrl }: Prom
 
     const { data, error } = await resend.emails.send({
         from: 'MSA Iftar Team <iftaar@msauofa.ca>',
-        replyTo: 'msauofa@ualberta.ca',
+        replyTo: 'msa@ualberta.ca',
         to: [to],
         subject: `Great News! Your Iftar Spot is Confirmed for ${formattedDate}`,
         html: `
