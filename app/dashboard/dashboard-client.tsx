@@ -333,11 +333,27 @@ export default function DashboardClient({
                                     </h4>
 
                                     {!todayBooking ? (
-                                        <div className="flex items-center gap-2 text-gray-500">
-                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                            <span>No active reservation</span>
+                                        <div className="flex flex-col gap-2">
+                                            <div className="flex items-center gap-2 text-gray-500">
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                <span>No active reservation</span>
+                                            </div>
+                                            {/* DEMO USE ONLY: Allow booking today to populate check-in list */}
+                                            <button
+                                                onClick={async () => {
+                                                    setLoading(true);
+                                                    const result = await reserveSpot(todayDate, true);
+                                                    setMessage(result.message);
+                                                    setLoading(false);
+                                                    if (result.success) router.refresh();
+                                                }}
+                                                disabled={loading}
+                                                className="text-xs text-purple-400 hover:text-purple-300 underline text-left"
+                                            >
+                                                [Demo] Book for Today
+                                            </button>
                                         </div>
                                     ) : todayBooking.status === 'confirmed' ? (
                                         <div className="flex items-center gap-2 text-purple-300">
