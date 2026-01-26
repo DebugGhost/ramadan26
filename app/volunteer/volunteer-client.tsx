@@ -54,16 +54,18 @@ export default function VolunteerClient({ initialBookings, todayDate }: Voluntee
                     filter: `day_id=eq.${todayDate}`,
                 },
                 async () => {
-                    // Refetch bookings
-                    const { data } = await supabase
-                        .from('bookings')
-                        .select('*, profiles(*)')
-                        .eq('day_id', todayDate)
-                        .eq('status', 'confirmed')
-                        .order('profiles(full_name)', { ascending: true })
-
-                    if (data) {
-                        setBookings(data as any)
+                    // Refetch bookings via API to ensure we have permission (Service Role)
+                    // The client-side supabase client is restricted by RLS
+                    try {
+                        const res = await fetch(`/api/volunteer/bookings?date=${todayDate}`)
+                        if (res.ok) {
+                            const { bookings: newBookings } = await res.json()
+                            if (newBookings) {
+                                setBookings(newBookings)
+                            }
+                        }
+                    } catch (err) {
+                        console.error('Error refreshing bookings:', err)
                     }
                 }
             )
