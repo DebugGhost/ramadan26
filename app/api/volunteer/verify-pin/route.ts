@@ -1,15 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
+import { getTodayInEdmonton } from '@/lib/date-utils'
 
 export async function POST(request: NextRequest) {
     try {
         const { pin } = await request.json()
+        const supabase = await createClient()
 
-        // Verify PIN against environment variable
-        const correctPin = process.env.VOLUNTEER_PIN
+        // Get today's date in Edmonton
+        const today = getTodayInEdmonton()
+
+        // Fetch the PIN for today from the database
+        const { data: day, error } = await supabase
+            .from('days')
+            .select('volunteer_pin')
+            .eq('date', today)
+            .single()
+
+        if (error || !day) {
+            console.error('Error fetching today\'s PIN:', error)
+            return NextResponse.json(
+                { error: 'Could not retrieve daily configuration' },
+                { status: 500 }
+            )
+        }
+
+        const correctPin = day.volunteer_pin
 
         if (!correctPin) {
+            console.error('No PIN configured for today')
             return NextResponse.json(
-                { error: 'Server configuration error' },
+                { error: 'No PIN configured for today' },
                 { status: 500 }
             )
         }
@@ -34,6 +55,7 @@ export async function POST(request: NextRequest) {
             )
         }
     } catch (error) {
+        console.error('Verify PIN exception:', error)
         return NextResponse.json(
             { error: 'Invalid request' },
             { status: 400 }
