@@ -8,6 +8,7 @@ import type { User } from '@supabase/supabase-js'
 import type { Booking, Day, Profile } from '@/lib/types'
 import { createClient } from '@/lib/supabase/client'
 import ConfirmDialog from '@/components/ConfirmDialog'
+import UserInfoModal from '@/components/UserInfoModal'
 
 interface Props {
     user: User
@@ -51,6 +52,14 @@ export default function DashboardClient({
     const [confirmedMuslim, setConfirmedMuslim] = useState(false)
 
     const [cancelDialog, setCancelDialog] = useState<{ isOpen: boolean; bookingId: string; date: string } | null>(null)
+    const [showUserInfoModal, setShowUserInfoModal] = useState(false)
+
+    useEffect(() => {
+        if (profile && (!profile.gender || !profile.referral_source)) {
+            setShowUserInfoModal(true)
+        }
+    }, [profile])
+
 
     // Sync state with props
     useEffect(() => {
@@ -118,6 +127,12 @@ export default function DashboardClient({
     }, [tomorrowDate, todayDate, user.id, router])
 
     const handleReserve = async () => {
+        // Double check profile info
+        if (profile && (!profile.gender || !profile.referral_source)) {
+            setShowUserInfoModal(true)
+            return
+        }
+
         if (!tomorrowDay) return
 
         if (!confirmedMuslim) {
@@ -250,7 +265,10 @@ export default function DashboardClient({
                                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
-                                            <span>Waitlisted</span>
+                                            <div className="flex flex-col text-left">
+                                                <span>Waitlisted</span>
+                                                <span className="text-xs font-normal opacity-80">We will notify you via your email</span>
+                                            </div>
                                         </div>
                                     )}
                                 </div>
@@ -367,7 +385,10 @@ export default function DashboardClient({
                                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
-                                            <span className="font-semibold">Waitlisted</span>
+                                            <div className="flex flex-col">
+                                                <span className="font-semibold">Waitlisted</span>
+                                                <span className="text-xs font-normal opacity-80">We will notify you via your email</span>
+                                            </div>
                                         </div>
                                     )}
                                 </div>
@@ -416,7 +437,10 @@ export default function DashboardClient({
                                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                     </svg>
-                                                    <span>Waitlist</span>
+                                                    <div className="flex flex-col">
+                                                        <span>Waitlist</span>
+                                                        <span className="text-xs font-normal opacity-80">We will notify you via your email</span>
+                                                    </div>
                                                 </div>
                                             )}
                                         </div>
@@ -438,6 +462,15 @@ export default function DashboardClient({
                 confirmVariant="danger"
                 onConfirm={handleCancelConfirm}
                 onCancel={() => setCancelDialog(null)}
+            />
+
+            {/* User Info Modal */}
+            <UserInfoModal
+                isOpen={showUserInfoModal}
+                onSuccess={() => {
+                    setShowUserInfoModal(false)
+                    router.refresh()
+                }}
             />
         </div>
     )
