@@ -103,3 +103,34 @@ export async function cancelBooking(bookingId: string): Promise<{ success: boole
         return { success: false, message: 'An unexpected error occurred. Please try again.' }
     }
 }
+
+export async function updateProfile(gender: 'brother' | 'sister', referralSource: string): Promise<{ success: boolean; message: string }> {
+    try {
+        const supabase = await createClient()
+        const { data: { user }, error: userError } = await supabase.auth.getUser()
+
+        if (userError || !user) {
+            return { success: false, message: 'You must be logged in to update your profile' }
+        }
+
+        const { error } = await supabase
+            .from('profiles')
+            .update({
+                gender,
+                referral_source: referralSource
+            })
+            .eq('id', user.id)
+
+        if (error) {
+            console.error('Update profile error:', error)
+            return { success: false, message: 'Failed to update profile. Please try again.' }
+        }
+
+        revalidatePath('/dashboard')
+        return { success: true, message: 'Profile updated successfully' }
+    } catch (error) {
+        console.error('Update profile exception:', error)
+        return { success: false, message: 'An unexpected error occurred' }
+    }
+}
+

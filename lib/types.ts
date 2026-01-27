@@ -17,6 +17,8 @@ export interface Database {
                     role: 'student' | 'volunteer' | 'admin'
                     created_at: string
                     updated_at: string
+                    gender: 'brother' | 'sister' | null
+                    referral_source: string | null
                 }
                 Insert: {
                     id: string
@@ -25,6 +27,8 @@ export interface Database {
                     role?: 'student' | 'volunteer' | 'admin'
                     created_at?: string
                     updated_at?: string
+                    gender?: 'brother' | 'sister' | null
+                    referral_source?: string | null
                 }
                 Update: {
                     id?: string
@@ -33,6 +37,8 @@ export interface Database {
                     role?: 'student' | 'volunteer' | 'admin'
                     created_at?: string
                     updated_at?: string
+                    gender?: 'brother' | 'sister' | null
+                    referral_source?: string | null
                 }
             }
             days: {
