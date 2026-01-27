@@ -48,6 +48,7 @@ export interface Database {
                     capacity_limit: number
                     created_at: string
                     updated_at: string
+                    volunteer_pin: string | null
                 }
                 Insert: {
                     date: string
@@ -55,6 +56,7 @@ export interface Database {
                     capacity_limit?: number
                     created_at?: string
                     updated_at?: string
+                    volunteer_pin?: string | null
                 }
                 Update: {
                     date?: string
@@ -62,6 +64,7 @@ export interface Database {
                     capacity_limit?: number
                     created_at?: string
                     updated_at?: string
+                    volunteer_pin?: string | null
                 }
             }
             bookings: {
