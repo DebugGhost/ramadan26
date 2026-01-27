@@ -358,20 +358,6 @@ export default function DashboardClient({
                                                 </svg>
                                                 <span>No active reservation</span>
                                             </div>
-                                            {/* DEMO USE ONLY: Allow booking today to populate check-in list */}
-                                            <button
-                                                onClick={async () => {
-                                                    setLoading(true);
-                                                    const result = await reserveSpot(todayDate, true);
-                                                    setMessage(result.message);
-                                                    setLoading(false);
-                                                    if (result.success) router.refresh();
-                                                }}
-                                                disabled={loading}
-                                                className="text-xs text-purple-400 hover:text-purple-300 underline text-left"
-                                            >
-                                                [Demo] Book for Today
-                                            </button>
                                         </div>
                                     ) : todayBooking.status === 'confirmed' ? (
                                         <div className="flex items-center gap-2 text-purple-300">
@@ -450,11 +436,12 @@ export default function DashboardClient({
                         </div>
                     )}
                 </main>
-            </div>
+            </div >
 
             {/* Cancel Confirmation Dialog */}
-            <ConfirmDialog
-                isOpen={!!cancelDialog}
+            < ConfirmDialog
+                isOpen={!!cancelDialog
+                }
                 title="Cancel Reservation?"
                 message="Are you sure you want to cancel your Iftar reservation? Someone from the waitlist may take your spot."
                 confirmText="Yes, Cancel"
@@ -472,6 +459,6 @@ export default function DashboardClient({
                     router.refresh()
                 }}
             />
-        </div>
+        </div >
     )
 }
