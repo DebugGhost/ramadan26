@@ -39,14 +39,14 @@ export async function POST(request: NextRequest) {
                 locationId: process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID
             })
 
-            // Log successful donation to Supabase
             if (result.payment?.status === 'COMPLETED') {
+                // Log successful donation to Supabase
                 const supabase = await createClient()
 
                 // Try to link to user if logged in
                 const { data: { user } } = await supabase.auth.getUser()
 
-                await supabase.from('donations').insert({
+                const { error: dbError } = await supabase.from('donations').insert({
                     amount: amount,
                     currency: 'CAD',
                     payment_id: result.payment.id!,
@@ -55,7 +55,18 @@ export async function POST(request: NextRequest) {
                     user_id: user?.id || null
                 })
 
-                return NextResponse.json({ success: true, payment: result.payment })
+                if (dbError) {
+                    console.error('Database Insert Error:', dbError)
+                    // We continue even if DB log fails, as payment succeeded
+                }
+
+                // Handle BigInt serialization for Square response
+                // Next.js JSON serialization fails with BigInt, so we convert to string
+                const paymentData = JSON.parse(JSON.stringify(result.payment, (key, value) =>
+                    typeof value === 'bigint' ? value.toString() : value
+                ))
+
+                return NextResponse.json({ success: true, payment: paymentData })
             } else {
                 return NextResponse.json({
                     error: 'Payment failed',
@@ -63,18 +74,21 @@ export async function POST(request: NextRequest) {
                 }, { status: 400 })
             }
 
-        } catch (squareError: any) {
-            console.error('Square API Error:', squareError)
+        } catch (error: any) {
+            console.error('Processing Error:', error)
 
-            // Try to extract a friendly error message
-            const errors = squareError.errors || []
-            const message = errors.length > 0 ? errors[0].detail : 'Payment processing failed'
+            // Check if it's a Square API error
+            if (error.errors && Array.isArray(error.errors)) {
+                const message = error.errors.length > 0 ? error.errors[0].detail : 'Payment processing failed'
+                return NextResponse.json({ error: message }, { status: 400 })
+            }
 
-            return NextResponse.json({ error: message }, { status: 400 })
+            // Otherwise generic error
+            return NextResponse.json({ error: 'An unexpected error occurred processing payment' }, { status: 500 })
         }
 
     } catch (error) {
-        console.error('Donation API Error:', error)
+        console.error('Internal Server Error:', error)
         return NextResponse.json(
             { error: 'Internal server error' },
             { status: 500 }
