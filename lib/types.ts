@@ -99,6 +99,38 @@ export interface Database {
                     checked_in_at?: string | null
                 }
             }
+            donations: {
+                Row: {
+                    id: string
+                    user_id: string | null
+                    amount: number
+                    currency: string
+                    payment_id: string
+                    status: string
+                    email: string | null
+                    created_at: string
+                }
+                Insert: {
+                    id?: string
+                    user_id?: string | null
+                    amount: number
+                    currency?: string
+                    payment_id: string
+                    status: string
+                    email?: string | null
+                    created_at?: string
+                }
+                Update: {
+                    id?: string
+                    user_id?: string | null
+                    amount?: number
+                    currency?: string
+                    payment_id?: string
+                    status?: string
+                    email?: string | null
+                    created_at?: string
+                }
+            }
         }
         Functions: {
             reserve_spot: {
