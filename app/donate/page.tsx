@@ -11,11 +11,13 @@ export default function DonatePage() {
     const [email, setEmail] = useState('')
     const [loading, setLoading] = useState(false)
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+    const [allowCardOverride, setAllowCardOverride] = useState(false)
 
     // Parse amount to number safely
     const amountNum = parseFloat(amount)
     const isValidAmount = !isNaN(amountNum) && amountNum > 0
-    const isLargeAmount = isValidAmount && amountNum > 50
+    // Show large amount warning ONLY if > 50 AND user hasn't overridden it
+    const showLargeAmountWarning = isValidAmount && amountNum > 50 && !allowCardOverride
 
     // Square Keys
     const appId = process.env.NEXT_PUBLIC_SQUARE_APP_ID
@@ -44,6 +46,7 @@ export default function DonatePage() {
                     text: `JazakAllah Khair! Your donation of $${amountNum.toFixed(2)} was successful.`
                 })
                 setAmount('')
+                setAllowCardOverride(false)
             } else {
                 setMessage({
                     type: 'error',
@@ -114,11 +117,12 @@ export default function DonatePage() {
                         </h2>
                         <div className="bg-slate-800/30 border border-purple-500/20 rounded-2xl p-6 backdrop-blur-sm inline-block max-w-xl">
                             <p className="text-xl font-arabic text-purple-300 mb-2 font-semibold">
-                                مَنْ فَطَّرَ صَائِمًا كَانَ لَهُ مِثْلُ أَجْرِهِ
+                                مَنْ أَطْعَمَ مُؤْمِنًا جَائِعًا أَطْعَمَهُ اللَّهُ مِنْ ثِمَارِ الْجَنَّةِ يَوْمَ الْقِيَامَةِ
                             </p>
                             <p className="text-gray-300 italic">
-                                "Whoever gives food for a fasting person to break his fast, he will have a reward like theirs..."
+                                "Whichever believer feeds a hungry believer, Allah feeds him from the fruits of Paradise on the Day of Resurrection..."
                             </p>
+                            <p className="text-xs text-purple-400 mt-2 font-medium tracking-wide uppercase">— Jami` at-Tirmidhi</p>
                         </div>
                     </div>
 
@@ -141,7 +145,10 @@ export default function DonatePage() {
                                 <input
                                     type="number"
                                     value={amount}
-                                    onChange={(e) => setAmount(e.target.value)}
+                                    onChange={(e) => {
+                                        setAmount(e.target.value)
+                                        setAllowCardOverride(false) // Reset override when amount changes
+                                    }}
                                     placeholder="0.00"
                                     className="w-full pl-10 pr-4 py-4 text-3xl font-bold text-gray-900 border-2 border-gray-200 rounded-xl focus:border-purple-600 focus:ring-0 outline-none transition-all placeholder:text-gray-300"
                                     min="1"
@@ -161,7 +168,7 @@ export default function DonatePage() {
                                 <div className="bg-gray-50 rounded-xl p-8 text-center text-gray-400">
                                     <p>Please enter an amount to proceed.</p>
                                 </div>
-                            ) : isLargeAmount ? (
+                            ) : showLargeAmountWarning ? (
                                 /* LARGE AMOUNT -> E-TRANSFER PROMPT */
                                 <div className="bg-purple-50 border border-purple-100 rounded-xl p-6 text-center">
                                     <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -169,12 +176,12 @@ export default function DonatePage() {
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                                         </svg>
                                     </div>
-                                    <h3 className="text-xl font-bold text-purple-900 mb-2">Please use e-Transfer</h3>
+                                    <h3 className="text-xl font-bold text-purple-900 mb-2">Please consider e-Transfer</h3>
                                     <p className="text-purple-800 mb-6">
-                                        For donations over $50, we kindly ask you to use e-Transfer. This saves the MSA from paying credit card processing fees, ensuring 100% of your donation goes to the cause.
+                                        For donations over $50, we kindly ask you to use e-Transfer. This saves the MSA from paying credit card processing fees, ensuring valid impact for your donation.
                                     </p>
 
-                                    <div className="bg-white border-2 border-purple-200 rounded-lg p-4 flex items-center justify-between gap-4 mb-2">
+                                    <div className="bg-white border-2 border-purple-200 rounded-lg p-4 flex items-center justify-between gap-4 mb-6">
                                         <code className="text-lg font-mono font-bold text-gray-800 select-all">
                                             msa@ualberta.ca
                                         </code>
@@ -188,7 +195,14 @@ export default function DonatePage() {
                                             Copy
                                         </button>
                                     </div>
-                                    <p className="text-xs text-purple-500">Auto-deposit is enabled. Please put "Iftar Donation" in the memo.</p>
+                                    <p className="text-xs text-purple-500 mb-6">Auto-deposit is enabled. Please put "Iftar Donation" in the memo.</p>
+
+                                    <button
+                                        onClick={() => setAllowCardOverride(true)}
+                                        className="text-sm text-gray-400 hover:text-purple-600 underline transition-colors"
+                                    >
+                                        I prefer to donate via Card
+                                    </button>
                                 </div>
                             ) : (
                                 /* REGULAR AMOUNT -> SQUARE FORM */
