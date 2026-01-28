@@ -210,7 +210,7 @@ export default function DashboardClient({
                                 className="h-10 w-auto"
                             />
                             <div>
-                                <h1 className="text-lg font-bold text-white">UAlberta MSA</h1>
+                                <h1 className="text-lg font-bold text-white">MSA UofA</h1>
                                 <p className="text-xs text-purple-300">Iftar Portal</p>
                             </div>
                         </div>
@@ -229,6 +229,27 @@ export default function DashboardClient({
                             As-salamu alaykum, {profile?.full_name || 'Student'}!
                         </h2>
                         <p className="text-purple-300">{user.email}</p>
+                    </div>
+
+                    {/* DONATION CARD */}
+                    <div className="bg-gradient-to-r from-purple-900/50 to-blue-900/50 border border-purple-500/20 rounded-3xl p-6 backdrop-blur-xl shadow-xl mb-8 relative overflow-hidden">
+                        <div className="flex flex-col md:flex-row items-center gap-6">
+                            <div className="flex-1 text-center md:text-left">
+                                <p className="text-xl font-arabic text-purple-200 mb-3 font-semibold leading-loose">
+                                    مَنْ فَطَّرَ صَائِمًا كَانَ لَهُ مِثْلُ أَجْرِهِ غَيْرَ أَنَّهُ لاَ يَنْقُصُ مِنْ أَجْرِ الصَّائِمِ شَيْئًا
+                                </p>
+                                <p className="text-gray-300 italic mb-2">
+                                    "Whoever gives food for a fasting person to break his fast, he will have a reward like theirs, without that detracting from their reward in the slightest."
+                                </p>
+                                <p className="text-xs text-purple-400 font-medium tracking-wide uppercase">— Sunan Ibn Majah</p>
+                            </div>
+                            <button
+                                onClick={() => router.push('/donate')}
+                                className="shrink-0 bg-white text-purple-900 font-bold py-3 px-6 rounded-xl hover:bg-gray-100 transition-colors shadow-lg shadow-purple-900/20"
+                            >
+                                Donate Now
+                            </button>
+                        </div>
                     </div>
 
                     {/* MAIN CARD: TOMORROW'S IFTAR */}
