@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Client, Environment } from 'square'
-import { createClient } from '@/lib/supabase/server'
+import { createClient as createServerClient } from '@/lib/supabase/server' // Renamed for clarity
+import { createClient as createAdminClient } from '@supabase/supabase-js' // Raw client for admin access
 import { randomUUID } from 'crypto'
 
 const isProduction = process.env.NODE_ENV === 'production'
@@ -41,12 +42,20 @@ export async function POST(request: NextRequest) {
 
             if (result.payment?.status === 'COMPLETED') {
                 // Log successful donation to Supabase
-                const supabase = await createClient()
 
-                // Try to link to user if logged in
-                const { data: { user } } = await supabase.auth.getUser()
+                // 1. Get User ID if available (using standard auth)
+                const supabaseAuth = await createServerClient()
+                const { data: { user } } = await supabaseAuth.auth.getUser()
 
-                const { error: dbError } = await supabase.from('donations').insert({
+                // 2. Insert using SERVICE ROLE (Bypasses RLS)
+                // We use the raw supabase-js client here because we need "root" access
+                // to guarantee the log is written regardless of the user's login state.
+                const supabaseAdmin = createAdminClient(
+                    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                    process.env.SUPABASE_SERVICE_ROLE_KEY!
+                )
+
+                const { error: dbError } = await supabaseAdmin.from('donations').insert({
                     amount: amount,
                     currency: 'CAD',
                     payment_id: result.payment.id!,
@@ -56,12 +65,13 @@ export async function POST(request: NextRequest) {
                 })
 
                 if (dbError) {
-                    console.error('Database Insert Error:', dbError)
+                    console.error('CRITICAL: Database Insert Error:', dbError)
                     // We continue even if DB log fails, as payment succeeded
+                } else {
+                    console.log('Donation logged successfully')
                 }
 
                 // Handle BigInt serialization for Square response
-                // Next.js JSON serialization fails with BigInt, so we convert to string
                 const paymentData = JSON.parse(JSON.stringify(result.payment, (key, value) =>
                     typeof value === 'bigint' ? value.toString() : value
                 ))
@@ -83,7 +93,6 @@ export async function POST(request: NextRequest) {
                 return NextResponse.json({ error: message }, { status: 400 })
             }
 
-            // Otherwise generic error
             return NextResponse.json({ error: 'An unexpected error occurred processing payment' }, { status: 500 })
         }
 
