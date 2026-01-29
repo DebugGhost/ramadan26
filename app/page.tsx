@@ -98,7 +98,7 @@ export default async function Home({
             {/* Stats Cards */}
             <div className="grid md:grid-cols-3 gap-6 mb-12">
               <div className="bg-gradient-to-br from-purple-500/10 to-purple-600/5 border border-purple-500/20 rounded-2xl p-6 backdrop-blur-sm">
-                <div className="text-4xl font-bold text-purple-400 mb-2">235</div>
+                <div className="text-4xl font-bold text-purple-400 mb-2">250</div>
                 <div className="text-sm text-gray-300">Daily Capacity</div>
               </div>
               <div className="bg-gradient-to-br from-blue-500/10 to-blue-600/5 border border-blue-500/20 rounded-2xl p-6 backdrop-blur-sm">
