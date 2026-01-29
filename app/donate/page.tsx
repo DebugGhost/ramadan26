@@ -195,7 +195,9 @@ export default function DonatePage() {
                                             Copy
                                         </button>
                                     </div>
-                                    <p className="text-xs text-purple-500 mb-6">Auto-deposit is enabled. Please put "Iftar Donation" in the memo.</p>
+                                    <p className="text-sm font-semibold text-purple-700 mb-6 bg-purple-100/50 py-2 px-4 rounded-lg inline-block border border-purple-200">
+                                        Auto-deposit is enabled. Please put <span className="font-extrabold uppercase">&quot;Iftar Donation&quot;</span> in the memo.
+                                    </p>
 
                                     <button
                                         onClick={() => setAllowCardOverride(true)}
@@ -214,7 +216,7 @@ export default function DonatePage() {
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
                                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all text-gray-900"
-                                            placeholder="brother.umar@example.com"
+                                            placeholder="your.email@example.com"
                                         />
                                     </div>
 

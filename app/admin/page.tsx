@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import Image from 'next/image'
+import AdminTable from './admin-table'
 
 export default async function AdminPage() {
     const supabase = await createClient()
@@ -35,6 +37,12 @@ export default async function AdminPage() {
         .select('*')
         .order('date', { ascending: true })
 
+    // 4. Fetch Donations
+    const { data: donations } = await supabase
+        .from('donations')
+        .select('amount, status')
+        .eq('status', 'COMPLETED')
+
     return (
         <div className="min-h-screen bg-slate-950 text-white p-8">
             <div className="max-w-4xl mx-auto">
@@ -48,46 +56,28 @@ export default async function AdminPage() {
                     </div>
                 </div>
 
-                <div className="bg-slate-900 border border-gray-800 rounded-xl overflow-hidden">
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left">
-                            <thead className="bg-slate-800 border-b border-gray-700">
-                                <tr>
-                                    <th className="p-4 font-semibold text-gray-300">Date</th>
-                                    <th className="p-4 font-semibold text-gray-300">Status</th>
-                                    <th className="p-4 font-semibold text-gray-300">Capacity</th>
-                                    <th className="p-4 font-semibold text-purple-300">Volunteer PIN</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-800">
-                                {days?.map((day) => (
-                                    <tr key={day.date} className="hover:bg-slate-800/50 transition-colors">
-                                        <td className="p-4">
-                                            {new Date(day.date + 'T00:00:00').toLocaleDateString('en-US', {
-                                                weekday: 'short',
-                                                month: 'short',
-                                                day: 'numeric'
-                                            })}
-                                        </td>
-                                        <td className="p-4">
-                                            <span className={`px-2 py-1 rounded text-xs font-medium ${day.is_open
-                                                    ? 'bg-green-500/10 text-green-400 border border-green-500/20'
-                                                    : 'bg-red-500/10 text-red-400 border border-red-500/20'
-                                                }`}>
-                                                {day.is_open ? 'Open' : 'Closed'}
-                                            </span>
-                                        </td>
-                                        <td className="p-4 text-gray-400">
-                                            {day.capacity_limit}
-                                        </td>
-                                        <td className="p-4 font-mono text-lg font-bold text-purple-400 tracking-wider">
-                                            {day.volunteer_pin || '----'}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                {/* STATUS CARDS */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    {/* Donation Card */}
+                    <div className="bg-gradient-to-br from-green-900/20 to-emerald-900/20 border border-green-500/20 rounded-xl p-6">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-green-500/10 rounded-lg text-green-400">
+                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p className="text-sm text-gray-400 uppercase tracking-wider font-semibold">Total Funds Raised</p>
+                                <p className="text-3xl font-bold text-white">
+                                    ${donations?.reduce((sum, d) => sum + (d.amount || 0), 0).toFixed(2) || '0.00'}
+                                </p>
+                            </div>
+                        </div>
                     </div>
+                </div>
+
+                <div className="bg-slate-900 border border-gray-800 rounded-xl overflow-hidden">
+                    <AdminTable days={days || []} />
                 </div>
             </div>
         </div>
