@@ -242,7 +242,7 @@ export default function VolunteerClient({ initialBookings, todayDate }: Voluntee
                 {/* Header */}
                 <header className="border-b border-purple-800/30 bg-slate-900/50 backdrop-blur-xl sticky top-0 z-10">
                     <div className="container mx-auto px-4 py-4">
-                        <div className="flex justify-between items-center">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div className="flex items-center gap-3">
                                 <Image
                                     src="/MSAUofAlogo.webp"
@@ -260,11 +260,26 @@ export default function VolunteerClient({ initialBookings, todayDate }: Voluntee
                                     </p>
                                 </div>
                             </div>
-                            <div className="text-right">
-                                <div className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-                                    {checkedInCount}/{totalCount}
+
+                            <div className="flex items-center gap-6 self-end md:self-auto">
+                                <div className="text-center">
+                                    <div className="text-lg font-bold text-blue-400">
+                                        {bookings.filter(b => b.profiles.gender === 'brother').length}
+                                    </div>
+                                    <div className="text-xs text-blue-200/70 uppercase tracking-wider">Brothers</div>
                                 </div>
-                                <div className="text-sm text-gray-400">Checked In</div>
+                                <div className="text-center">
+                                    <div className="text-lg font-bold text-pink-400">
+                                        {bookings.filter(b => b.profiles.gender === 'sister').length}
+                                    </div>
+                                    <div className="text-xs text-pink-200/70 uppercase tracking-wider">Sisters</div>
+                                </div>
+                                <div className="text-center pl-6 border-l border-purple-800/50">
+                                    <div className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+                                        {checkedInCount}/{totalCount}
+                                    </div>
+                                    <div className="text-xs text-gray-400 uppercase tracking-wider">Checked In</div>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -1,16 +1,16 @@
--- Seed data for Second Demo (Jan 29th)
+-- Seed data for Second Demo (Feb 2nd)
 -- 1. Cleans up any existing bookings for demo days to start fresh
--- 2. Sets up Today (29th) and Tomorrow (30th) with capacity 2
+-- 2. Sets up Today (2nd) and Tomorrow (3rd) with capacity 2
 -- 3. Sets Waitlist limit to 1
 
 -- Clear existing bookings for these days to ensure clean slate
-DELETE FROM public.bookings WHERE day_id IN ('2026-01-29', '2026-01-30');
+DELETE FROM public.bookings WHERE day_id IN ('2026-02-02', '2026-02-03');
 
 -- Insert/Update Days
 INSERT INTO public.days (date, is_open, capacity_limit)
 VALUES 
-    ('2026-01-29', true, 2),
-    ('2026-01-30', true, 2)
+    ('2026-02-02', true, 2),
+    ('2026-02-03', true, 2)
 ON CONFLICT (date) DO UPDATE
 SET 
     is_open = EXCLUDED.is_open,

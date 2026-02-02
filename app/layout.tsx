@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "UAlberta MSA Iftar Portal",
+  title: "MSAUofA Ramadan 2026",
   description: "Reserve your spot for Ramadan 2026 iftar meals",
   icons: {
     icon: '/MSAUofAlogo.webp'
