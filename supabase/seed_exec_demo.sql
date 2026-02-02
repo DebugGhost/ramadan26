@@ -5,7 +5,7 @@
 
 INSERT INTO public.days (date, is_open, capacity_limit)
 VALUES 
-    ('2026-01-26', true, 2),
+    ('2026-01-26', true, 3),
     ('2026-01-27', true, 2)
 ON CONFLICT (date) DO UPDATE
 SET 
