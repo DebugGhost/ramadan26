@@ -379,26 +379,7 @@ export default function DashboardClient({
                                                 </svg>
                                                 <span>No active reservation</span>
                                             </div>
-                                            {/* DEMO BUTTON: Register for Today */}
-                                            {todayDay.is_open && (
-                                                <button
-                                                    onClick={async () => {
-                                                        if (!confirmedMuslim) {
-                                                            setMessage('⚠️ Please confirm that you are Muslim above (in the tomorrow card) to reserve.')
-                                                            return
-                                                        }
-                                                        setLoading(true)
-                                                        const result = await reserveSpot(todayDate, confirmedMuslim)
-                                                        setMessage(result.message)
-                                                        setLoading(false)
-                                                        if (result.success) router.refresh()
-                                                    }}
-                                                    disabled={loading}
-                                                    className="mt-2 bg-purple-600/20 text-purple-300 text-sm px-4 py-2 rounded-lg border border-purple-500/30 hover:bg-purple-600/30 transition-colors"
-                                                >
-                                                    Register for Today (Demo)
-                                                </button>
-                                            )}
+                                            {/* DEMO BUTTON REMOVED */}
                                         </div>
                                     ) : todayBooking.status === 'confirmed' ? (
                                         <div className="flex items-center gap-2 text-purple-300">
