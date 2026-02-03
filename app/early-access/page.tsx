@@ -11,17 +11,24 @@ export default async function EarlyAccessPage() {
     // 1. Check Authentication
     const { data: { user }, error: userError } = await supabase.auth.getUser()
     if (userError || !user) {
-        redirect('/auth/sign-in?next=/early-access')
+        redirect('/')
     }
 
-    // 2. Check Role (Admin or Early Access)
+    // 2. Check Early Access List
+    const { data: earlyAccessEntry } = await supabase
+        .from('early_access_emails')
+        .select('email')
+        .eq('email', user.email)
+        .single()
+
+    // 3. Get User Profile (to also check Admin role)
     const { data: profile } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
         .single()
 
-    const hasAccess = profile?.role === 'early_access' || profile?.role === 'admin'
+    const hasAccess = !!earlyAccessEntry || profile?.role === 'admin'
 
     if (!hasAccess) {
         return (

@@ -14,7 +14,7 @@ export interface Database {
                     id: string
                     email: string
                     full_name: string | null
-                    role: 'student' | 'volunteer' | 'admin' | 'early_access'
+                    role: 'student' | 'volunteer' | 'admin'
                     created_at: string
                     updated_at: string
                     gender: 'brother' | 'sister' | null
@@ -24,7 +24,7 @@ export interface Database {
                     id: string
                     email: string
                     full_name?: string | null
-                    role?: 'student' | 'volunteer' | 'admin' | 'early_access'
+                    role?: 'student' | 'volunteer' | 'admin'
                     created_at?: string
                     updated_at?: string
                     gender?: 'brother' | 'sister' | null
@@ -34,7 +34,7 @@ export interface Database {
                     id?: string
                     email?: string
                     full_name?: string | null
-                    role?: 'student' | 'volunteer' | 'admin' | 'early_access'
+                    role?: 'student' | 'volunteer' | 'admin'
                     created_at?: string
                     updated_at?: string
                     gender?: 'brother' | 'sister' | null
@@ -128,6 +128,20 @@ export interface Database {
                     payment_id?: string
                     status?: string
                     email?: string | null
+                    created_at?: string
+                }
+            }
+            early_access_emails: {
+                Row: {
+                    email: string
+                    created_at: string
+                }
+                Insert: {
+                    email: string
+                    created_at?: string
+                }
+                Update: {
+                    email?: string
                     created_at?: string
                 }
             }
