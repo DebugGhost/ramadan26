@@ -17,7 +17,7 @@ export default async function EarlyAccessPage() {
     // 2. Check Role (Admin or Early Access)
     const { data: profile } = await supabase
         .from('profiles')
-        .select('role')
+        .select('*')
         .eq('id', user.id)
         .single()
 
