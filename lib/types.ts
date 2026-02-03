@@ -14,7 +14,7 @@ export interface Database {
                     id: string
                     email: string
                     full_name: string | null
-                    role: 'student' | 'volunteer' | 'admin'
+                    role: 'student' | 'volunteer' | 'admin' | 'early_access'
                     created_at: string
                     updated_at: string
                     gender: 'brother' | 'sister' | null
@@ -24,7 +24,7 @@ export interface Database {
                     id: string
                     email: string
                     full_name?: string | null
-                    role?: 'student' | 'volunteer' | 'admin'
+                    role?: 'student' | 'volunteer' | 'admin' | 'early_access'
                     created_at?: string
                     updated_at?: string
                     gender?: 'brother' | 'sister' | null
@@ -34,7 +34,7 @@ export interface Database {
                     id?: string
                     email?: string
                     full_name?: string | null
-                    role?: 'student' | 'volunteer' | 'admin'
+                    role?: 'student' | 'volunteer' | 'admin' | 'early_access'
                     created_at?: string
                     updated_at?: string
                     gender?: 'brother' | 'sister' | null
