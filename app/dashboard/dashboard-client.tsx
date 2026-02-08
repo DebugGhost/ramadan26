@@ -267,6 +267,14 @@ export default function DashboardClient({
                                         <span>Tomorrow's Iftar</span>
                                     </h3>
                                     <p className="text-purple-200 font-medium text-lg">{formatDate(tomorrowDate)}</p>
+                                    {tomorrowDay?.menu_item && (
+                                        <div className="mt-3 flex items-center gap-2 text-gray-300">
+                                            <svg className="w-5 h-5 text-purple-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                            </svg>
+                                            <span className="text-sm"><span className="text-purple-300 font-medium">Menu:</span> {tomorrowDay.menu_item}</span>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
@@ -379,26 +387,7 @@ export default function DashboardClient({
                                                 </svg>
                                                 <span>No active reservation</span>
                                             </div>
-                                            {/* DEMO BUTTON: Register for Today */}
-                                            {todayDay.is_open && (
-                                                <button
-                                                    onClick={async () => {
-                                                        if (!confirmedMuslim) {
-                                                            setMessage('⚠️ Please confirm that you are Muslim above (in the tomorrow card) to reserve.')
-                                                            return
-                                                        }
-                                                        setLoading(true)
-                                                        const result = await reserveSpot(todayDate, confirmedMuslim)
-                                                        setMessage(result.message)
-                                                        setLoading(false)
-                                                        if (result.success) router.refresh()
-                                                    }}
-                                                    disabled={loading}
-                                                    className="mt-2 bg-purple-600/20 text-purple-300 text-sm px-4 py-2 rounded-lg border border-purple-500/30 hover:bg-purple-600/30 transition-colors"
-                                                >
-                                                    Register for Today (Demo)
-                                                </button>
-                                            )}
+                                            {/* DEMO BUTTON REMOVED */}
                                         </div>
                                     ) : todayBooking.status === 'confirmed' ? (
                                         <div className="flex items-center gap-2 text-purple-300">
