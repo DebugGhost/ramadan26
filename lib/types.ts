@@ -49,6 +49,7 @@ export interface Database {
                     created_at: string
                     updated_at: string
                     volunteer_pin: string | null
+                    menu_item: string | null
                 }
                 Insert: {
                     date: string
@@ -57,6 +58,7 @@ export interface Database {
                     created_at?: string
                     updated_at?: string
                     volunteer_pin?: string | null
+                    menu_item?: string | null
                 }
                 Update: {
                     date?: string
@@ -65,6 +67,7 @@ export interface Database {
                     created_at?: string
                     updated_at?: string
                     volunteer_pin?: string | null
+                    menu_item?: string | null
                 }
             }
             bookings: {
