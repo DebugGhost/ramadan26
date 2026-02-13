@@ -74,9 +74,6 @@ export default async function EarlyAccessPage() {
                     <p className="text-gray-300 mb-6">
                         The early access portal opens at <span className="font-bold text-white">11:00 AM</span>.
                     </p>
-                    <p className="text-sm text-gray-500 mb-6">
-                        Current Server Time Check: {currentHour}:00 (approx)
-                    </p>
                     <Link
                         href="/dashboard"
                         className="inline-block bg-slate-800 hover:bg-slate-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors border border-gray-700"
