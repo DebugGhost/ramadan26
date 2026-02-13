@@ -165,26 +165,8 @@ export default async function Home({
               </p>
             </div>
 
-            {/* Non-Muslim Iftar Link */}
-            <div className="mt-12">
-              <Link
-                href="/non-muslims"
-                className="block max-w-md mx-auto bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 rounded-2xl p-5 hover:border-emerald-500/40 transition-all group"
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-emerald-300 font-semibold mb-1">Non-Muslim? Join us for Iftar!</p>
-                    <p className="text-gray-400 text-sm">Feb 25th — Sign up now for the special open Iftar</p>
-                  </div>
-                  <svg className="w-5 h-5 text-emerald-400 group-hover:translate-x-1 transition-transform shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </div>
-              </Link>
-            </div>
-
             {/* Volunteer Link */}
-            <div className="mt-6 text-center">
+            <div className="mt-12 text-center">
               <Link
                 href="/volunteer"
                 className="inline-flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-colors font-medium group"
