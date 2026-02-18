@@ -37,7 +37,36 @@ export default async function AdminPage() {
         .select('*')
         .order('date', { ascending: true })
 
-    // 4. Fetch Donations
+    // 4. Fetch Allocations/Bookings (Optimized: Only needed fields)
+    const { data: bookings } = await supabase
+        .from('bookings')
+        .select('day_id, status')
+
+    // 5. Aggregate Stats
+    const stats: Record<string, { confirmed: number, waitlisted: number }> = {}
+
+    if (bookings) {
+        bookings.forEach((booking) => {
+            const date = booking.day_id
+            if (!stats[date]) {
+                stats[date] = { confirmed: 0, waitlisted: 0 }
+            }
+            if (booking.status === 'confirmed') {
+                stats[date].confirmed += 1
+            } else if (booking.status === 'waitlist') {
+                stats[date].waitlisted += 1
+            }
+        })
+    }
+
+    // Merge stats into days
+    const daysWithStats = days?.map(day => ({
+        ...day,
+        confirmed_count: stats[day.date]?.confirmed || 0,
+        waitlist_count: stats[day.date]?.waitlisted || 0
+    })) || []
+
+    // 6. Fetch Donations
     const { data: donations } = await supabase
         .from('donations')
         .select('amount, status')
@@ -77,7 +106,7 @@ export default async function AdminPage() {
                 </div>
 
                 <div className="bg-slate-900 border border-gray-800 rounded-xl overflow-hidden">
-                    <AdminTable days={days || []} />
+                    <AdminTable days={daysWithStats} />
                 </div>
             </div>
         </div>

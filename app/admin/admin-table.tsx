@@ -8,6 +8,8 @@ interface Day {
     is_open: boolean
     capacity_limit: number
     volunteer_pin: string | null
+    confirmed_count?: number
+    waitlist_count?: number
 }
 
 export default function AdminTable({ days }: { days: Day[] }) {
@@ -44,6 +46,8 @@ export default function AdminTable({ days }: { days: Day[] }) {
                     <tr>
                         <th className="p-4 font-semibold text-gray-300">Date</th>
                         <th className="p-4 font-semibold text-gray-300">Status</th>
+                        <th className="p-4 font-semibold text-blue-300">Signed Up</th>
+                        <th className="p-4 font-semibold text-yellow-300">Waitlisted</th>
                         <th className="p-4 font-semibold text-gray-300">Capacity</th>
                         <th className="p-4 font-semibold text-purple-300">Volunteer PIN</th>
                     </tr>
@@ -65,6 +69,12 @@ export default function AdminTable({ days }: { days: Day[] }) {
                                     }`}>
                                     {day.is_open ? 'Open' : 'Closed'}
                                 </span>
+                            </td>
+                            <td className="p-4 font-mono font-medium text-blue-400">
+                                {day.confirmed_count || 0}
+                            </td>
+                            <td className="p-4 font-mono font-medium text-yellow-400">
+                                {day.waitlist_count || 0}
                             </td>
                             <td className="p-4 text-gray-400">
                                 {editingDate === day.date ? (
