@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { updateDailyCapacity } from './actions'
+import { updateDailyCapacity, getWaitlistedUsers } from './actions'
 
 interface Day {
     date: string
@@ -17,6 +17,11 @@ export default function AdminTable({ days }: { days: Day[] }) {
     const [editingDate, setEditingDate] = useState<string | null>(null)
     const [tempCapacity, setTempCapacity] = useState<number>(235)
     const [loading, setLoading] = useState(false)
+
+    // Waitlist Modal State
+    const [waitlistModalOpen, setWaitlistModalOpen] = useState(false)
+    const [waitlistData, setWaitlistData] = useState<any[]>([])
+    const [viewingDate, setViewingDate] = useState('')
 
     const handleEdit = (day: Day) => {
         setEditingDate(day.date)
@@ -39,8 +44,22 @@ export default function AdminTable({ days }: { days: Day[] }) {
         setEditingDate(null)
     }
 
+    const handleViewWaitlist = async (date: string) => {
+        setLoading(true)
+        try {
+            const users = await getWaitlistedUsers(date)
+            setWaitlistData(users)
+            setViewingDate(date)
+            setWaitlistModalOpen(true)
+        } catch (error) {
+            alert('Failed to fetch waitlist')
+        } finally {
+            setLoading(false)
+        }
+    }
+
     return (
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto relative">
             <table className="w-full text-left">
                 <thead className="bg-slate-800 border-b border-gray-700">
                     <tr>
@@ -73,8 +92,13 @@ export default function AdminTable({ days }: { days: Day[] }) {
                             <td className="p-4 font-mono font-medium text-blue-400">
                                 {day.confirmed_count || 0}
                             </td>
-                            <td className="p-4 font-mono font-medium text-yellow-400">
-                                {day.waitlist_count || 0}
+                            <td className="p-4">
+                                <button
+                                    onClick={() => handleViewWaitlist(day.date)}
+                                    className="font-mono font-medium text-yellow-400 hover:text-yellow-300 hover:underline text-left"
+                                >
+                                    {day.waitlist_count || 0} / 50
+                                </button>
                             </td>
                             <td className="p-4 text-gray-400">
                                 {editingDate === day.date ? (
@@ -125,6 +149,56 @@ export default function AdminTable({ days }: { days: Day[] }) {
                     ))}
                 </tbody>
             </table>
+
+            {/* Waitlist Modal */}
+            {waitlistModalOpen && (
+                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+                    <div className="bg-slate-900 border border-gray-700 rounded-xl p-6 max-w-lg w-full max-h-[80vh] flex flex-col shadow-2xl">
+                        <div className="flex justify-between items-center mb-6">
+                            <div>
+                                <h3 className="text-xl font-bold text-white">Waitlist Details</h3>
+                                <p className="text-gray-400 text-sm mt-1">
+                                    {new Date(viewingDate + 'T00:00:00').toLocaleDateString('en-US', {
+                                        weekday: 'long',
+                                        month: 'long',
+                                        day: 'numeric'
+                                    })}
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => setWaitlistModalOpen(false)}
+                                className="text-gray-400 hover:text-white bg-slate-800 p-2 rounded-lg hover:bg-slate-700 transition"
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div className="overflow-y-auto pr-2 space-y-3 flex-1">
+                            {waitlistData.length === 0 ? (
+                                <div className="text-center py-12 text-gray-500 border-2 border-dashed border-gray-800 rounded-lg">
+                                    No users on the waitlist for this day.
+                                </div>
+                            ) : (
+                                <ul className="space-y-3">
+                                    {waitlistData.map((user, i) => (
+                                        <li key={i} className="bg-slate-800/50 p-4 rounded-lg border border-gray-700 flex justify-between items-start">
+                                            <div>
+                                                <p className="font-semibold text-white">{user.full_name}</p>
+                                                <p className="text-sm text-gray-400">{user.email}</p>
+                                            </div>
+                                            <span className="text-xs font-mono text-gray-500 bg-slate-900 px-2 py-1 rounded border border-gray-800">
+                                                {new Date(user.joined_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            </span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
