@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -37,8 +38,14 @@ export default async function AdminPage() {
         .select('*')
         .order('date', { ascending: true })
 
-    // 4. Fetch Allocations/Bookings (Optimized: Only needed fields)
-    const { data: bookings } = await supabase
+    // 4. Fetch Allocations/Bookings using Service Role (Bypass RLS)
+    const supabaseAdmin = createServiceClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+
+    // Explicitly select simpler fields to avoid any join issues, though service role should handle it
+    const { data: bookings } = await supabaseAdmin
         .from('bookings')
         .select('day_id, status')
 
@@ -47,7 +54,8 @@ export default async function AdminPage() {
 
     if (bookings) {
         bookings.forEach((booking) => {
-            const date = booking.day_id
+            // Ensure day_id is treated as string key
+            const date = String(booking.day_id)
             if (!stats[date]) {
                 stats[date] = { confirmed: 0, waitlisted: 0 }
             }
