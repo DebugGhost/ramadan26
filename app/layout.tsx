@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   title: "MSAUofA Ramadan 2026",
   description: "Reserve your spot for Ramadan 2026 iftar meals",
   icons: {
-    icon: '/MSAUofAlogo.webp'
+    icon: '/msa-logo.png'
   }
 };
 
