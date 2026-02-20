@@ -13,8 +13,9 @@ export async function GET(request: Request) {
         if (!error && data?.user) {
             const email = data.user.email
 
-            // CRITICAL: Only allow @ualberta.ca emails
-            if (!email || !email.endsWith('@ualberta.ca')) {
+            // CRITICAL: Only allow approved university emails
+            const ALLOWED_DOMAINS = ['@ualberta.ca', '@macewan.ca', '@nait.ca'];
+            if (!email || !ALLOWED_DOMAINS.some(domain => email.endsWith(domain))) {
                 // Sign out the user immediately
                 await supabase.auth.signOut()
 
