@@ -44,3 +44,8 @@ ON CONFLICT (date) DO UPDATE SET
 
 -- Verify the data was inserted
 SELECT date, capacity_limit, menu_item FROM public.days ORDER BY date ASC;
+
+-- Generate random volunteer PINs for all days that don't have one
+UPDATE public.days
+SET volunteer_pin = lpad(floor(random() * 10000)::text, 4, '0')
+WHERE volunteer_pin IS NULL;

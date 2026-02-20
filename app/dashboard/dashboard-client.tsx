@@ -282,11 +282,16 @@ export default function DashboardClient({
                             {tomorrowBooking && (
                                 <div className="mb-6">
                                     {tomorrowBooking.status === 'confirmed' && (
-                                        <div className="inline-flex items-center gap-2 bg-purple-500/10 border border-purple-500/30 text-purple-300 px-5 py-3 rounded-xl font-semibold">
-                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                            </svg>
-                                            <span>Confirmed</span>
+                                        <div>
+                                            <div className="inline-flex items-center gap-2 bg-purple-500/10 border border-purple-500/30 text-purple-300 px-5 py-3 rounded-xl font-semibold">
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                </svg>
+                                                <span>Confirmed</span>
+                                            </div>
+                                            <p className="mt-3 text-sm text-amber-300/90 bg-amber-500/10 border border-amber-500/20 rounded-lg px-4 py-3">
+                                                ⚠️ If you can&apos;t make it, please cancel your reservation so someone on the waitlist can get an iftar.
+                                            </p>
                                         </div>
                                     )}
                                     {tomorrowBooking.status === 'waitlist' && (
