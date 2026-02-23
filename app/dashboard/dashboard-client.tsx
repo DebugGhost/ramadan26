@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { reserveSpot, cancelBooking } from './actions'
@@ -53,12 +53,62 @@ export default function DashboardClient({
 
     const [cancelDialog, setCancelDialog] = useState<{ isOpen: boolean; bookingId: string; date: string } | null>(null)
     const [showUserInfoModal, setShowUserInfoModal] = useState(false)
+    const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
+    const turnstileWidgetRef = useRef<HTMLDivElement>(null)
+    const turnstileWidgetId = useRef<string | null>(null)
 
     useEffect(() => {
         if (profile && (!profile.gender || !profile.referral_source)) {
             setShowUserInfoModal(true)
         }
     }, [profile])
+
+    // Load Turnstile script and render widget
+    const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
+
+    const renderTurnstile = useCallback(() => {
+        if (!turnstileSiteKey || !turnstileWidgetRef.current) return
+        const win = window as any
+        if (!win.turnstile) return
+
+        // Remove existing widget if any
+        if (turnstileWidgetId.current) {
+            try { win.turnstile.remove(turnstileWidgetId.current) } catch { }
+            turnstileWidgetId.current = null
+        }
+
+        turnstileWidgetId.current = win.turnstile.render(turnstileWidgetRef.current, {
+            sitekey: turnstileSiteKey,
+            callback: (token: string) => setTurnstileToken(token),
+            'expired-callback': () => setTurnstileToken(null),
+            'error-callback': () => setTurnstileToken(null),
+            theme: 'dark',
+        })
+    }, [turnstileSiteKey])
+
+    useEffect(() => {
+        if (!turnstileSiteKey) return
+
+        // Check if script already loaded
+        if ((window as any).turnstile) {
+            renderTurnstile()
+            return
+        }
+
+        const script = document.createElement('script')
+        script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'
+        script.async = true
+        script.onload = () => renderTurnstile()
+        document.head.appendChild(script)
+
+        return () => {
+            // Cleanup widget on unmount
+            const win = window as any
+            if (turnstileWidgetId.current && win.turnstile) {
+                try { win.turnstile.remove(turnstileWidgetId.current) } catch { }
+            }
+        }
+    }, [turnstileSiteKey, renderTurnstile])
 
 
     // Sync state with props
@@ -126,6 +176,14 @@ export default function DashboardClient({
         }
     }, [tomorrowDate, todayDate, user.id, router])
 
+    const resetTurnstile = () => {
+        setTurnstileToken(null)
+        const win = window as any
+        if (turnstileWidgetId.current && win.turnstile) {
+            try { win.turnstile.reset(turnstileWidgetId.current) } catch { }
+        }
+    }
+
     const handleReserve = async () => {
         // Double check profile info
         if (profile && (!profile.gender || !profile.referral_source)) {
@@ -140,12 +198,21 @@ export default function DashboardClient({
             return
         }
 
+        // Check Turnstile token (only if site key is configured)
+        if (turnstileSiteKey && !turnstileToken) {
+            setMessage('⚠️ Please complete the verification challenge.')
+            return
+        }
+
         setLoading(true)
         setMessage('')
         // Reserve for TOMORROW
-        const result = await reserveSpot(tomorrowDate, confirmedMuslim)
+        const result = await reserveSpot(tomorrowDate, confirmedMuslim, turnstileToken || '')
         setMessage(result.message)
         setLoading(false)
+
+        // Reset Turnstile widget for next attempt
+        resetTurnstile()
 
         if (result.success) {
             setConfirmedMuslim(false)
@@ -362,6 +429,13 @@ export default function DashboardClient({
                                             </span>
                                         </label>
                                     </div>
+
+                                    {/* Turnstile Widget */}
+                                    {turnstileSiteKey && (
+                                        <div className="mb-4 flex justify-center">
+                                            <div ref={turnstileWidgetRef}></div>
+                                        </div>
+                                    )}
 
                                     <button
                                         onClick={handleReserve}
