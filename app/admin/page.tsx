@@ -5,6 +5,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import AdminTable from './admin-table'
 
+export const dynamic = 'force-dynamic'
+
 export default async function AdminPage() {
     const supabase = await createClient()
 
