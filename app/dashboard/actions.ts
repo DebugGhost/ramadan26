@@ -3,10 +3,17 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import type { ReserveSpotResult } from '@/lib/types'
+import { verifyTurnstileToken } from '@/lib/turnstile'
 
-export async function reserveSpot(date: string, confirmedMuslim: boolean): Promise<{ success: boolean; message: string; result?: ReserveSpotResult }> {
+export async function reserveSpot(date: string, confirmedMuslim: boolean, turnstileToken: string): Promise<{ success: boolean; message: string; result?: ReserveSpotResult }> {
     try {
         const supabase = await createClient()
+
+        // Verify Turnstile token (bot protection)
+        const isHuman = await verifyTurnstileToken(turnstileToken)
+        if (!isHuman) {
+            return { success: false, message: '⚠️ Bot verification failed. Please refresh the page and try again.' }
+        }
 
         // Verify Muslim confirmation
         if (!confirmedMuslim) {
