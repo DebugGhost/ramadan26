@@ -40,42 +40,31 @@ export default async function AdminPage() {
         .select('*')
         .order('date', { ascending: true })
 
-    // 4. Fetch Allocations/Bookings using Service Role (Bypass RLS)
+    // 4. Fetch booking counts per day using Service Role (Bypass RLS)
     const supabaseAdmin = createServiceClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
-    // Explicitly select simpler fields to avoid any join issues, though service role should handle it
-    const { data: bookings } = await supabaseAdmin
-        .from('bookings')
-        .select('day_id, status')
-        .range(0, 9999)
+    // Use count queries per day — avoids row limit issues and is more efficient
+    const countPromises = (days || []).map(async (day) => {
+        const [{ count: confirmed }, { count: waitlisted }] = await Promise.all([
+            supabaseAdmin.from('bookings').select('*', { count: 'exact', head: true }).eq('day_id', day.date).eq('status', 'confirmed'),
+            supabaseAdmin.from('bookings').select('*', { count: 'exact', head: true }).eq('day_id', day.date).eq('status', 'waitlist'),
+        ])
+        return { date: day.date, confirmed: confirmed || 0, waitlisted: waitlisted || 0 }
+    })
+    const counts = await Promise.all(countPromises)
 
-    // 5. Aggregate Stats
-    const stats: Record<string, { confirmed: number, waitlisted: number }> = {}
-
-    if (bookings) {
-        bookings.forEach((booking) => {
-            // Ensure day_id is treated as string key
-            const date = String(booking.day_id)
-            if (!stats[date]) {
-                stats[date] = { confirmed: 0, waitlisted: 0 }
-            }
-            if (booking.status === 'confirmed') {
-                stats[date].confirmed += 1
-            } else if (booking.status === 'waitlist') {
-                stats[date].waitlisted += 1
-            }
-        })
-    }
-
-    // Merge stats into days
-    const daysWithStats = days?.map(day => ({
-        ...day,
-        confirmed_count: stats[day.date]?.confirmed || 0,
-        waitlist_count: stats[day.date]?.waitlisted || 0
-    })) || []
+    // Merge counts into days
+    const daysWithStats = days?.map(day => {
+        const dayCounts = counts.find(c => c.date === day.date)
+        return {
+            ...day,
+            confirmed_count: dayCounts?.confirmed || 0,
+            waitlist_count: dayCounts?.waitlisted || 0,
+        }
+    }) || []
 
     // 6. Fetch Donations
     const { data: donations } = await supabase
