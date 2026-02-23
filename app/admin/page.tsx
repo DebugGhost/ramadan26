@@ -50,6 +50,7 @@ export default async function AdminPage() {
     const { data: bookings } = await supabaseAdmin
         .from('bookings')
         .select('day_id, status')
+        .range(0, 9999)
 
     // 5. Aggregate Stats
     const stats: Record<string, { confirmed: number, waitlisted: number }> = {}
