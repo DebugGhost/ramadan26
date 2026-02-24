@@ -89,6 +89,24 @@ export async function cancelBooking(bookingId: string): Promise<{ success: boole
             return { success: false, message: 'You must be logged in to cancel a booking' }
         }
 
+        // Check if this is a same-day booking being cancelled after 5 PM Edmonton time
+        const { data: booking } = await supabase
+            .from('bookings')
+            .select('day_id')
+            .eq('id', bookingId)
+            .eq('user_id', user.id)
+            .single()
+
+        if (booking) {
+            const now = new Date()
+            const edmontonNow = new Date(now.toLocaleString('en-US', { timeZone: 'America/Edmonton' }))
+            const todayStr = edmontonNow.toISOString().split('T')[0]
+
+            if (booking.day_id === todayStr && edmontonNow.getHours() >= 17) {
+                return { success: false, message: '⚠️ Cancellations for today\'s iftar are closed after 5:00 PM.' }
+            }
+        }
+
         // Delete the booking row so the user can re-book if they want
         // RLS policy ensures users can only cancel their own bookings
         const { error } = await supabase
