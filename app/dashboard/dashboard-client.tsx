@@ -57,6 +57,25 @@ export default function DashboardClient({
     const turnstileWidgetRef = useRef<HTMLDivElement>(null)
     const turnstileWidgetId = useRef<string | null>(null)
 
+    // Check if it's past 5 PM Edmonton time — hide cancel button for today's iftar after this
+    const isPastCancelCutoff = useCallback(() => {
+        const now = new Date()
+        const edmontonHour = parseInt(
+            new Intl.DateTimeFormat('en-US', { hour: 'numeric', hour12: false, timeZone: 'America/Edmonton' }).format(now)
+        )
+        return edmontonHour >= 17
+    }, [])
+
+    const [todayCancelDisabled, setTodayCancelDisabled] = useState(isPastCancelCutoff())
+
+    useEffect(() => {
+        // Re-check every minute so the button disappears at 5 PM without refresh
+        const interval = setInterval(() => {
+            setTodayCancelDisabled(isPastCancelCutoff())
+        }, 60_000)
+        return () => clearInterval(interval)
+    }, [isPastCancelCutoff])
+
     useEffect(() => {
         if (profile && (!profile.gender || !profile.referral_source)) {
             setShowUserInfoModal(true)
@@ -488,8 +507,8 @@ export default function DashboardClient({
                                     )}
                                 </div>
 
-                                {/* Allow cancelling today's iftar too */}
-                                {todayBooking && (
+                                {/* Allow cancelling today's iftar too — but not after 5 PM */}
+                                {todayBooking && !todayCancelDisabled && (
                                     <button
                                         onClick={() => handleCancelClick(todayBooking.id, todayDate)}
                                         className="text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 px-4 py-2 rounded-lg transition-colors"
