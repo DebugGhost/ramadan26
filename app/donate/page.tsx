@@ -126,6 +126,20 @@ export default function DonatePage() {
                         </div>
                     </div>
 
+                    {/* Donation Goal Card */}
+                    <div className="donation-goal-glow bg-gradient-to-r from-purple-900/50 to-blue-900/50 border border-purple-500/30 rounded-2xl p-6 backdrop-blur-xl shadow-xl mb-8 relative overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.03] to-transparent pointer-events-none" />
+                        <div className="relative z-10 text-center">
+                            <p className="text-sm uppercase tracking-widest text-amber-400/80 font-semibold mb-2">🤲 We still need</p>
+                            <h3 className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent mb-2">
+                                $22,000
+                            </h3>
+                            <p className="text-gray-300 text-sm md:text-base">
+                                to cover the cost of iftars this Ramadan. Every dollar directly feeds a fasting student.
+                            </p>
+                        </div>
+                    </div>
+
                     <div className="bg-white rounded-3xl p-8 shadow-2xl relative overflow-hidden">
                         {/* Status Message */}
                         {message && (
