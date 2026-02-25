@@ -264,13 +264,13 @@ export default function VolunteerClient({ initialBookings, todayDate }: Voluntee
                             <div className="flex items-center gap-6 self-end md:self-auto">
                                 <div className="text-center">
                                     <div className="text-lg font-bold text-blue-400">
-                                        {bookings.filter(b => b.profiles.gender === 'brother').length}
+                                        {bookings.filter(b => b.profiles.gender === 'brother' && b.checked_in).length}/{bookings.filter(b => b.profiles.gender === 'brother').length}
                                     </div>
                                     <div className="text-xs text-blue-200/70 uppercase tracking-wider">Brothers</div>
                                 </div>
                                 <div className="text-center">
                                     <div className="text-lg font-bold text-pink-400">
-                                        {bookings.filter(b => b.profiles.gender === 'sister').length}
+                                        {bookings.filter(b => b.profiles.gender === 'sister' && b.checked_in).length}/{bookings.filter(b => b.profiles.gender === 'sister').length}
                                     </div>
                                     <div className="text-xs text-pink-200/70 uppercase tracking-wider">Sisters</div>
                                 </div>

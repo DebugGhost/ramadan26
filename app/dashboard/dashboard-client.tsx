@@ -317,27 +317,25 @@ export default function DashboardClient({
                         <p className="text-purple-300">{user.email}</p>
                     </div>
 
-                    {/* DONATION CARD */}
-                    <div className="bg-gradient-to-r from-purple-900/50 to-blue-900/50 border border-purple-500/20 rounded-3xl p-6 backdrop-blur-xl shadow-xl mb-8 relative overflow-hidden">
-                        <div className="flex flex-col md:flex-row items-center gap-6">
-                            <div className="flex-1 text-center md:text-left">
-                                <p className="text-xl font-arabic text-purple-200 mb-3 font-semibold leading-loose">
-                                    مَنْ فَطَّرَ صَائِمًا كَانَ لَهُ مِثْلُ أَجْرِهِ غَيْرَ أَنَّهُ لاَ يَنْقُصُ مِنْ أَجْرِ الصَّائِمِ شَيْئًا
-                                </p>
-                                <p className="text-gray-300 italic mb-2">
-                                    "Whoever gives food for a fasting person to break his fast, he will have a reward like theirs, without that detracting from their reward in the slightest."
-                                </p>
-                                <p className="text-xs text-purple-400 font-medium tracking-wide uppercase">— Sunan Ibn Majah</p>
+                    {/* DONATION GOAL CARD */}
+                    <div className="donation-goal-glow bg-gradient-to-r from-purple-900/50 to-blue-900/50 border border-purple-500/30 rounded-3xl p-6 md:p-8 backdrop-blur-xl shadow-xl mb-8 relative overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.03] to-transparent pointer-events-none" />
+                        <div className="relative z-10">
+                            <div className="text-center mb-5">
+                                <p className="text-sm uppercase tracking-widest text-amber-400/80 font-semibold mb-2">🤲 We still need</p>
+                                <h3 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent mb-2">$22,000</h3>
+                                <p className="text-gray-300 text-base md:text-lg">to cover the cost of iftars this Ramadan. Your donation directly feeds fasting students.</p>
                             </div>
-                            <button
-                                onClick={() => router.push('/donate')}
-                                className="shrink-0 bg-white text-purple-900 font-bold py-3 px-6 rounded-xl hover:bg-gray-100 transition-colors shadow-lg shadow-purple-900/20"
-                            >
-                                Donate Now
-                            </button>
+                            <div className="border-t border-purple-500/20 pt-4 mb-5">
+                                <p className="text-lg font-arabic text-purple-200 mb-2 font-semibold leading-loose text-center">مَنْ فَطَّرَ صَائِمًا كَانَ لَهُ مِثْلُ أَجْرِهِ غَيْرَ أَنَّهُ لاَ يَنْقُصُ مِنْ أَجْرِ الصَّائِمِ شَيْئًا</p>
+                                <p className="text-gray-400 italic text-sm text-center mb-1">&quot;Whoever gives food for a fasting person to break his fast, he will have a reward like theirs, without that detracting from their reward in the slightest.&quot;</p>
+                                <p className="text-xs text-purple-400 font-medium tracking-wide uppercase text-center">— Sunan Ibn Majah</p>
+                            </div>
+                            <div className="text-center">
+                                <button onClick={() => router.push('/donate')} className="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-gray-900 font-bold py-3 px-8 rounded-xl transition-all shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30 hover:scale-[1.03] active:scale-[0.98]">Donate Now</button>
+                            </div>
                         </div>
                     </div>
-
                     {/* MAIN CARD: TOMORROW'S IFTAR */}
                     <div className="bg-slate-800/50 border border-purple-500/20 rounded-3xl p-8 backdrop-blur-xl shadow-2xl mb-8 relative overflow-hidden">
                         <div className="absolute top-0 right-0 p-4 opacity-10">
@@ -466,104 +464,108 @@ export default function DashboardClient({
                                 </>
                             )}
                         </div>
-                    </div>
+                    </div >
 
                     {/* SECONDARY CARD: TODAY'S IFTAR */}
-                    {todayDay && (
-                        <div className="bg-slate-800/30 border border-gray-700/50 rounded-2xl p-6 backdrop-blur-sm mb-8">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <h4 className="text-gray-400 text-sm uppercase tracking-wider font-semibold mb-1">
-                                        Today's Iftar ({formatDate(todayDate)})
-                                    </h4>
+                    {
+                        todayDay && (
+                            <div className="bg-slate-800/30 border border-gray-700/50 rounded-2xl p-6 backdrop-blur-sm mb-8">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <h4 className="text-gray-400 text-sm uppercase tracking-wider font-semibold mb-1">
+                                            Today's Iftar ({formatDate(todayDate)})
+                                        </h4>
 
-                                    {!todayBooking ? (
-                                        <div className="flex flex-col gap-2">
-                                            <div className="flex items-center gap-2 text-gray-500">
+                                        {!todayBooking ? (
+                                            <div className="flex flex-col gap-2">
+                                                <div className="flex items-center gap-2 text-gray-500">
+                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                    <span>No active reservation</span>
+                                                </div>
+                                                {/* DEMO BUTTON REMOVED */}
+                                            </div>
+                                        ) : todayBooking.status === 'confirmed' ? (
+                                            <div className="flex items-center gap-2 text-purple-300">
                                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                                 </svg>
-                                                <span>No active reservation</span>
+                                                <span className="font-semibold">Confirmed</span>
                                             </div>
-                                            {/* DEMO BUTTON REMOVED */}
-                                        </div>
-                                    ) : todayBooking.status === 'confirmed' ? (
-                                        <div className="flex items-center gap-2 text-purple-300">
-                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                            </svg>
-                                            <span className="font-semibold">Confirmed</span>
-                                        </div>
-                                    ) : (
-                                        <div className="flex items-center gap-2 text-amber-300">
-                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                            <div className="flex flex-col">
-                                                <span className="font-semibold">Waitlisted</span>
-                                                <span className="text-xs font-normal opacity-80">We will notify you via your email</span>
+                                        ) : (
+                                            <div className="flex items-center gap-2 text-amber-300">
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                <div className="flex flex-col">
+                                                    <span className="font-semibold">Waitlisted</span>
+                                                    <span className="text-xs font-normal opacity-80">We will notify you via your email</span>
+                                                </div>
                                             </div>
-                                        </div>
+                                        )}
+                                    </div>
+
+                                    {/* Allow cancelling today's iftar too — but not after 5 PM */}
+                                    {todayBooking && !todayCancelDisabled && (
+                                        <button
+                                            onClick={() => handleCancelClick(todayBooking.id, todayDate)}
+                                            className="text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 px-4 py-2 rounded-lg transition-colors"
+                                        >
+                                            Cancel
+                                        </button>
                                     )}
                                 </div>
-
-                                {/* Allow cancelling today's iftar too — but not after 5 PM */}
-                                {todayBooking && !todayCancelDisabled && (
-                                    <button
-                                        onClick={() => handleCancelClick(todayBooking.id, todayDate)}
-                                        className="text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 px-4 py-2 rounded-lg transition-colors"
-                                    >
-                                        Cancel
-                                    </button>
-                                )}
                             </div>
-                        </div>
-                    )}
+                        )
+                    }
 
                     {/* UPCOMING BOOKINGS LIST */}
-                    {upcomingBookings.length > 0 && (
-                        <div className="bg-slate-800/50 border border-purple-500/20 rounded-3xl p-8 backdrop-blur-xl shadow-2xl">
-                            <h3 className="text-xl font-bold text-white mb-4">
-                                Other Upcoming Reservations
-                            </h3>
-                            <div className="space-y-3">
-                                {upcomingBookings.map((booking: any) => (
-                                    <div
-                                        key={booking.id}
-                                        className="flex justify-between items-center p-4 bg-slate-700/30 border border-purple-500/10 rounded-xl"
-                                    >
-                                        <div>
-                                            <div className="font-semibold text-white">
-                                                {formatDate(booking.day_id)}
+                    {
+                        upcomingBookings.length > 0 && (
+                            <div className="bg-slate-800/50 border border-purple-500/20 rounded-3xl p-8 backdrop-blur-xl shadow-2xl">
+                                <h3 className="text-xl font-bold text-white mb-4">
+                                    Other Upcoming Reservations
+                                </h3>
+                                <div className="space-y-3">
+                                    {upcomingBookings.map((booking: any) => (
+                                        <div
+                                            key={booking.id}
+                                            className="flex justify-between items-center p-4 bg-slate-700/30 border border-purple-500/10 rounded-xl"
+                                        >
+                                            <div>
+                                                <div className="font-semibold text-white">
+                                                    {formatDate(booking.day_id)}
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                {booking.status === 'confirmed' && (
+                                                    <div className="flex items-center gap-1 text-purple-300 font-semibold">
+                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                        <span>Confirmed</span>
+                                                    </div>
+                                                )}
+                                                {booking.status === 'waitlist' && (
+                                                    <div className="flex items-center gap-1 text-amber-300 font-semibold">
+                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        </svg>
+                                                        <div className="flex flex-col">
+                                                            <span>Waitlist</span>
+                                                            <span className="text-xs font-normal opacity-80">We will notify you via your email</span>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-3">
-                                            {booking.status === 'confirmed' && (
-                                                <div className="flex items-center gap-1 text-purple-300 font-semibold">
-                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                                    </svg>
-                                                    <span>Confirmed</span>
-                                                </div>
-                                            )}
-                                            {booking.status === 'waitlist' && (
-                                                <div className="flex items-center gap-1 text-amber-300 font-semibold">
-                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                    </svg>
-                                                    <div className="flex flex-col">
-                                                        <span>Waitlist</span>
-                                                        <span className="text-xs font-normal opacity-80">We will notify you via your email</span>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
                             </div>
-                        </div>
-                    )}
-                </main>
+                        )
+                    }
+                </main >
             </div >
 
             {/* Cancel Confirmation Dialog */}
