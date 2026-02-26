@@ -1,12 +1,13 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
 
 export async function updateDailyCapacity(date: string, newCapacity: number) {
     const supabase = await createClient()
 
-    // Verify Is Admin
+    // Verify Is Admin (using user-scoped client)
     const { data: { user }, error: userError } = await supabase.auth.getUser()
     if (userError || !user) throw new Error('Unauthorized')
 
@@ -18,8 +19,13 @@ export async function updateDailyCapacity(date: string, newCapacity: number) {
 
     if (profile?.role !== 'admin') throw new Error('Unauthorized')
 
-    // Update
-    const { error } = await supabase
+    // Update using service role client (RLS on days table only allows service_role writes)
+    const supabaseAdmin = createServiceClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+
+    const { error } = await supabaseAdmin
         .from('days')
         .update({ capacity_limit: newCapacity })
         .eq('date', date)
