@@ -137,6 +137,8 @@ export default function DonatePage() {
                             <p className="text-gray-300 text-sm md:text-base">
                                 to cover the cost of iftars this Ramadan. Every dollar directly feeds a fasting student.
                             </p>
+                            <p className="text-amber-300/70 text-sm mt-2 font-medium">Every dollar counts — any amount helps 💛
+                            </p>
                         </div>
                     </div>
 
