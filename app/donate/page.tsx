@@ -132,7 +132,7 @@ export default function DonatePage() {
                         <div className="relative z-10 text-center">
                             <p className="text-sm uppercase tracking-widest text-amber-400/80 font-semibold mb-2">🤲 We still need</p>
                             <h3 className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent mb-2">
-                                $22,000
+                                $12,000
                             </h3>
                             <p className="text-gray-300 text-sm md:text-base">
                                 to cover the cost of iftars this Ramadan. Every dollar directly feeds a fasting student.
