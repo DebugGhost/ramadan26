@@ -323,7 +323,7 @@ export default function DashboardClient({
                         <div className="relative z-10">
                             <div className="text-center mb-5">
                                 <p className="text-sm uppercase tracking-widest text-amber-400/80 font-semibold mb-2">🤲 We still need</p>
-                                <h3 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent mb-2">$22,000</h3>
+                                <h3 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent mb-2">$12,000</h3>
                                 <p className="text-gray-300 text-base md:text-lg">to cover the cost of iftars this Ramadan. Your donation directly feeds fasting students.</p>
                                 <p className="text-amber-300/70 text-sm mt-2 font-medium">Every dollar counts — any amount helps 💛</p>
                             </div>
