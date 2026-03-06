@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import type { BookingWithProfile } from '@/lib/types'
@@ -19,6 +19,9 @@ export default function VolunteerClient({ initialBookings, todayDate }: Voluntee
     const [bookings, setBookings] = useState<BookingWithProfile[]>(initialBookings)
     const [searchTerm, setSearchTerm] = useState('')
     const [uncheckDialog, setUncheckDialog] = useState<{ isOpen: boolean; bookingId: string; studentName: string } | null>(null)
+    const [selectedIndex, setSelectedIndex] = useState(-1)
+    const searchInputRef = useRef<HTMLInputElement>(null)
+    const selectedRowRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         // Check if already authenticated via cookie
@@ -130,6 +133,12 @@ export default function VolunteerClient({ initialBookings, todayDate }: Voluntee
                             : b
                     )
                 )
+                // After check-in (not uncheck), clear search and refocus
+                if (!currentStatus) {
+                    setSearchTerm('')
+                    setSelectedIndex(-1)
+                    searchInputRef.current?.focus()
+                }
             } else {
                 alert('Failed to update check-in status')
             }
@@ -164,6 +173,37 @@ export default function VolunteerClient({ initialBookings, todayDate }: Voluntee
             booking.profiles.email.toLowerCase().includes(searchLower)
         )
     })
+
+    // Reset selected index when search term changes
+    useEffect(() => {
+        setSelectedIndex(-1)
+    }, [searchTerm])
+
+    // Scroll selected row into view
+    useEffect(() => {
+        selectedRowRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+    }, [selectedIndex])
+
+    const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'ArrowDown') {
+            e.preventDefault()
+            setSelectedIndex(prev => {
+                const max = filteredBookings.length - 1
+                return prev < max ? prev + 1 : max
+            })
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault()
+            setSelectedIndex(prev => (prev > 0 ? prev - 1 : 0))
+        } else if (e.key === 'Enter' && selectedIndex >= 0 && selectedIndex < filteredBookings.length) {
+            e.preventDefault()
+            const booking = filteredBookings[selectedIndex]
+            if (!booking.checked_in) {
+                performCheckIn(booking.id, false)
+            } else {
+                handleCheckInClick(booking.id, booking.checked_in, booking.profiles.full_name || 'this student')
+            }
+        }
+    }
 
     const checkedInCount = bookings.filter(b => b.checked_in).length
     const totalCount = bookings.length
@@ -295,9 +335,11 @@ export default function VolunteerClient({ initialBookings, todayDate }: Voluntee
                             </svg>
                         </div>
                         <input
+                            ref={searchInputRef}
                             type="text"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
+                            onKeyDown={handleSearchKeyDown}
                             placeholder="Search by name or email..."
                             className="w-full pl-14 pr-6 py-4 bg-slate-800/50 border border-purple-500/20 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
                         />
@@ -311,10 +353,11 @@ export default function VolunteerClient({ initialBookings, todayDate }: Voluntee
                             </div>
                         ) : (
                             <div className="divide-y divide-purple-500/10">
-                                {filteredBookings.map((booking) => (
+                                {filteredBookings.map((booking, index) => (
                                     <div
                                         key={booking.id}
-                                        className={`p-6 flex items-center justify-between hover:bg-slate-700/30 transition ${booking.checked_in ? 'bg-purple-500/10' : ''
+                                        ref={index === selectedIndex ? selectedRowRef : undefined}
+                                        className={`p-6 flex items-center justify-between hover:bg-slate-700/30 transition ${booking.checked_in ? 'bg-purple-500/10' : ''} ${index === selectedIndex ? 'ring-2 ring-purple-400 bg-slate-700/50' : ''
                                             }`}
                                     >
                                         <div className="flex-1">
