@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import type { BookingWithProfile } from '@/lib/types'
 import ConfirmDialog from '@/components/ConfirmDialog'
+import { createBookingSearch, normalizeArabicName } from '@/lib/fuzzy-search'
 
 interface VolunteerPageProps {
     initialBookings: BookingWithProfile[]
@@ -165,13 +166,12 @@ export default function VolunteerClient({ initialBookings, todayDate }: Voluntee
         })
     }
 
-    const filteredBookings = bookings.filter(booking => {
-        const searchLower = searchTerm.toLowerCase()
-        return (
-            booking.profiles.full_name?.toLowerCase().includes(searchLower) ||
-            booking.profiles.email.toLowerCase().includes(searchLower)
-        )
-    })
+    // Rebuild Fuse index whenever bookings change
+    const fuseSearch = useMemo(() => createBookingSearch(bookings), [bookings])
+
+    const filteredBookings = searchTerm.trim()
+        ? fuseSearch.search(normalizeArabicName(searchTerm)).map(result => result.item)
+        : bookings
 
     // Reset selected index when search term changes
     useEffect(() => {
