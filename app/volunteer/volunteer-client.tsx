@@ -56,19 +56,17 @@ export default function VolunteerClient({ initialBookings, todayDate }: Voluntee
                     table: 'bookings',
                     filter: `day_id=eq.${todayDate}`,
                 },
-                async () => {
-                    // Refetch bookings via API to ensure we have permission (Service Role)
-                    // The client-side supabase client is restricted by RLS
-                    try {
-                        const res = await fetch(`/api/volunteer/bookings?date=${todayDate}`)
-                        if (res.ok) {
-                            const { bookings: newBookings } = await res.json()
-                            if (newBookings) {
-                                setBookings(newBookings)
-                            }
-                        }
-                    } catch (err) {
-                        console.error('Error refreshing bookings:', err)
+                (payload) => {
+                    // Patch the changed booking directly from the realtime payload
+                    // instead of calling the API — zero Vercel function invocations
+                    if (payload.new && payload.new.id) {
+                        setBookings(prev =>
+                            prev.map(b =>
+                                b.id === payload.new.id
+                                    ? { ...b, checked_in: payload.new.checked_in, checked_in_at: payload.new.checked_in_at }
+                                    : b
+                            )
+                        )
                     }
                 }
             )
