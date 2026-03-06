@@ -133,11 +133,12 @@ export default function VolunteerClient({ initialBookings, todayDate }: Voluntee
                             : b
                     )
                 )
-                // After check-in (not uncheck), clear search and refocus
+                // After check-in (not uncheck), refocus and select all text
+                // so user sees the check-in update before typing a new search
                 if (!currentStatus) {
-                    setSearchTerm('')
                     setSelectedIndex(-1)
                     searchInputRef.current?.focus()
+                    searchInputRef.current?.select()
                 }
             } else {
                 alert('Failed to update check-in status')
