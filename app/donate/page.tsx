@@ -126,19 +126,21 @@ export default function DonatePage() {
                         </div>
                     </div>
 
-                    {/* Donation Goal Card */}
-                    <div className="donation-goal-glow bg-gradient-to-r from-purple-900/50 to-blue-900/50 border border-purple-500/30 rounded-2xl p-6 backdrop-blur-xl shadow-xl mb-8 relative overflow-hidden">
+                    {/* Orphan Sponsorship Card */}
+                    <div className="donation-goal-glow bg-gradient-to-r from-emerald-900/50 to-teal-900/50 border border-emerald-500/30 rounded-2xl p-6 backdrop-blur-xl shadow-xl mb-8 relative overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.03] to-transparent pointer-events-none" />
                         <div className="relative z-10 text-center">
-                            <p className="text-sm uppercase tracking-widest text-amber-400/80 font-semibold mb-2">🤲 We still need</p>
-                            <h3 className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent mb-2">
-                                $3,000
+                            <p className="text-sm uppercase tracking-widest text-emerald-400/80 font-semibold mb-2">🤲 Alhamdulillah — Iftar Goal Reached!</p>
+                            <h3 className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-emerald-300 via-green-200 to-emerald-400 bg-clip-text text-transparent mb-2">
+                                Now Support Orphans
                             </h3>
                             <p className="text-gray-300 text-sm md:text-base">
-                                to cover the cost of iftars this Ramadan. Every dollar directly feeds a fasting student.
+                                We reached our iftar donation goal! Now help us support orphans in need this Ramadan.
                             </p>
-                            <p className="text-amber-300/70 text-sm mt-2 font-medium">Every dollar counts — any amount helps 💛
-                            </p>
+                            <p className="text-emerald-300/70 text-sm mt-2 font-medium">Every dollar counts — any amount helps 💚</p>
+                            <p className="text-gray-300 italic text-sm mt-3">&quot;I and the sponsor of an orphan shall be in Paradise like these two.&quot; And he indicated with his fingers, meaning his index and his middle finger.</p>
+                            <p className="text-xs text-emerald-400 font-medium tracking-wide uppercase mt-1">— The Messenger of Allah ﷺ (Sahih al-Bukhari)</p>
+                            <a href="https://fundraise.islamicreliefcanada.org/campaign/from-campus-to-compassion-supporting-orphans-together-4202#attr=" target="_blank" rel="noopener noreferrer" className="inline-block mt-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-bold py-3 px-8 rounded-xl transition-all shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 hover:scale-[1.03] active:scale-[0.98]">Donate for Orphans</a>
                         </div>
                     </div>
 
